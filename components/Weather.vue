@@ -1,5 +1,5 @@
 <template>
-  <div class="weather-widget">
+  <div class="bg-slate-500">
     <div v-if="loading">Loading weather...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else-if="weather" class="weather-content">
@@ -72,13 +72,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.weather-widget {
-    max-width: 30rem;
-  background: #1a1a1a;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
+
 
 .error {
   color: #ff4444;

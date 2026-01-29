@@ -1,21 +1,31 @@
 <template>
-  <div class="dashboard">
-    <h1>Morning Dashboard</h1>
-    <p>{{ message }}</p>
+
+    <div class="bg-black text-white">
+      <div class="dashboard mb-6 ">
+        <h1 class="bg-emerald-600">Morning Dashboard</h1>
+        <p>{{ message }}</p>
         <p v-if="apiData">API says: {{ apiData.message }}</p>
-          <Weather/>
-  </div>
+      </div>
+          <div class="flex justify-evenly">
+            <Weather />
+            <Football />
+          </div>
+    </div>
+
 
 </template>
 
 <script setup>
 import Weather from "../components/Weather.vue";
-const message = ref('Dashboard is running!');
+import Football from "../components/football.vue";
 
+const message = ref("Dashboard is running!");
 const apiData = ref(null);
+const footData = ref(null);
 
 onMounted(async () => {
-  apiData.value = await $fetch('./api/test');
+  apiData.value = await $fetch("/api/test");
+  footData.value = await $fetch("/api/football");
 });
 </script>
 
@@ -27,14 +37,8 @@ onMounted(async () => {
 }
 
 body {
-  background: #000;
-  color: #fff;
-  font-family: system-ui, -apple-system, sans-serif;
-}
 
-.dashboard {
-  padding: 20px;
-  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 h1 {
