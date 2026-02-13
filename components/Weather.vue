@@ -1,15 +1,17 @@
 <template>
-  <div class="bg-slate-500">
+  <div class="bg-slate-800 h-fit rounded-md">
     <div v-if="loading">Loading weather...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else-if="weather" class="weather-content">
       
       <!-- Current Weather -->
-      <div class="current">
+      <div class="current p-2 rounded-md flex flex-col items-center justify-center">
         <h2>{{ weather.location }}</h2>
-        <div class="temp">{{ Math.round(weather.current.temp) }}°C</div>
-        <div class="feels-like">Feels like {{ Math.round(weather.current.feels_like) }}°C</div>
-        <div class="condition">{{ weather.current.description }}</div>
+        <div class="flex flex-wrap gap-4 justify-center items-center w-full mb-2">
+          <div class="temp text-4xl font-bold text-blue-300">{{ Math.round(weather.current.temp) }}°C</div>
+          <div class="feels-like text-lg text-blue-200">Feels like {{ Math.round(weather.current.feels_like) }}°C</div>
+        </div>
+
         <div class="details">
           <span>💧 {{ weather.current.humidity }}%</span>
           <span>💨 {{ Math.round(weather.current.wind_speed) }} m/s</span>
@@ -17,12 +19,12 @@
       </div>
       
       <!-- Hourly Forecast -->
-      <div class="hourly">
-        <h3>6/12/18</h3>
-        <div class="hourly-grid">
-          <div v-for="hour in weather.hourly" :key="hour.time" class="hour-block">
-            <div class="time">{{ formatTime(hour.time) }}</div>
-            <div class="hour-temp">{{ Math.round(hour.temp) }}°</div>
+      <div class=" ">
+
+        <div class="flex">
+          <div v-for="hour in weather.hourly" :key="hour.time" class="hour-block m-2 p-2 rounded-md flex flex-col items-center justify-center bg-slate-900">
+            <div class="font-bold ">{{ formatTime(hour.time) }}</div>
+            <div class="text-2xl text-blue-500">{{ Math.round(hour.temp) }}°</div>
             <div class="hour-desc">{{ hour.description }}</div>
             <div class="rain" v-if="hour.pop > 20">💧 {{ Math.round(hour.pop) }}%</div>
           </div>
@@ -70,8 +72,8 @@ onMounted(() => {
   setInterval(fetchWeather, 30 * 60 * 1000);
 });
 </script>
-
-<style scoped>
+<!-- 
+<style>
 
 
 .error {
@@ -160,4 +162,4 @@ onMounted(() => {
   font-size: 0.9em;
   color: #4a9eff;
 }
-</style>
+</style> -->
