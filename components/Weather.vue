@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-slate-800 h-fit rounded-md">
+  <div class="bg-slate-800 h-min w-fit rounded-md">
     <div v-if="loading">Loading weather...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else-if="weather" class="weather-content">
@@ -16,11 +16,8 @@
           <span>💧 {{ weather.current.humidity }}%</span>
           <span>💨 {{ Math.round(weather.current.wind_speed) }} m/s</span>
         </div>
-      </div>
-      
+      </div>     
       <!-- Hourly Forecast -->
-      <div class=" ">
-
         <div class="flex">
           <div v-for="hour in weather.hourly" :key="hour.time" class="hour-block m-2 p-2 rounded-md flex flex-col items-center justify-center bg-slate-900">
             <div class="font-bold ">{{ formatTime(hour.time) }}</div>
@@ -28,9 +25,7 @@
             <div class="hour-desc">{{ hour.description }}</div>
             <div class="rain" v-if="hour.pop > 20">💧 {{ Math.round(hour.pop) }}%</div>
           </div>
-        </div>
-      </div>
-      
+        </div>      
     </div>
   </div>
 </template>

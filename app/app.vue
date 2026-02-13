@@ -1,14 +1,14 @@
 <template>
     <div class="bg-black text-white">
-      <div class="dashboard mb-6">
-        <h1 class="text-4xl font-bold text-center text-blue-500 p-4">Morning Dashboard</h1>
-        <!-- <p>{{ message }}</p>
-        <p v-if="apiData">API says: {{ apiData.message }}</p> -->
-      </div>
-          <div class="flex justify-evenly">
-            <Weather />
-            <Football />
-          </div>
+        <h1 class="text-2xl font-bold text-center text-blue-500 p-2">Morning Dashboard</h1>
+
+          <section class="grid grid-cols-3 grid-rows-2 items-center ">
+            <div class="col-start-1 row-start-1 flex justify-center"><Weather /></div>
+            <div class="col-start-1 row-start-2 flex justify-center"><Weather /></div>
+            <div class="col-start-2 row-start-1 flex justify-center"><Weather /></div>
+            <div class="col-start-2 row-start-2 flex justify-center"><Weather /></div>
+            <div class="col-start-3 row-start-1 row-span-2  flex justify-center"><Football /></div>
+          </section>
           
     </div>
 

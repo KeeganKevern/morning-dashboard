@@ -7,12 +7,15 @@ export default async (event) => {
       headers: { 'X-Auth-Token': API_KEY }
     
     });
-    console.log("here")
+
     
     // Get Liverpool's matches
-    const matches = await $fetch('https://api.football-data.org/v4/teams/64/matches?limit=10', {
+    const matches = await $fetch('https://api.football-data.org/v4/teams/64/matches?limit=50', {
       headers: { 'X-Auth-Token': API_KEY }
     });
+
+    
+
     
     const now = new Date();
     const lastMatch = matches.matches
