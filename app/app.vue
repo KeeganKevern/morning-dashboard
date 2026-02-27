@@ -68,7 +68,7 @@ function createTitleDate (){
   const month = d.toLocaleDateString('en-GB', { month: 'short' });    // Feb
   const day = d.getDate()+" "; 
 
-  return day + weekday + month;
+  return weekday + day + month;
 
 }
 
