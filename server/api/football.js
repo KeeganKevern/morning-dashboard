@@ -1,3 +1,19 @@
+const formatDateWithOrdinal = (dateString) => {
+  const d = new Date(dateString);
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
+  const day = d.getDate();
+
+  const getSuffix = (n) => {
+    const j = n % 10, k = n % 100;
+    if (j === 1 && k !== 11) return 'st';
+    if (j === 2 && k !== 12) return 'nd';
+    if (j === 3 && k !== 13) return 'rd';
+    return 'th';
+  };
+
+  return `${weekday} ${day}${getSuffix(day)}`;
+};
+
 export default async (event) => {
   const API_KEY = process.env.FOOTBALL_DATA_API_KEY; // Free tier available
   
@@ -30,6 +46,7 @@ export default async (event) => {
       table: table.standings[0].table.map(team => ({
         position: team.position,
         team: team.team.name,
+        shortName: team.team.tla, // 3-letter code from API
         played: team.playedGames,
         won: team.won,
         drawn: team.draw,
@@ -41,16 +58,15 @@ export default async (event) => {
       })),
       liverpool: {
         lastMatch: lastMatch ? {
-          date: new Date(lastMatch.utcDate).toLocaleDateString('en-GB'),
-          home: lastMatch.homeTeam.name,
-          away: lastMatch.awayTeam.name,
+          home: lastMatch.homeTeam.tla,
+          away: lastMatch.awayTeam.tla,
           score: `${lastMatch.score.fullTime.home} - ${lastMatch.score.fullTime.away}`
         } : null,
         nextMatch: nextMatch ? {
-          date: new Date(nextMatch.utcDate).toLocaleDateString('en-GB'),
+          date: formatDateWithOrdinal(nextMatch.utcDate),
           time: new Date(nextMatch.utcDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-          home: nextMatch.homeTeam.name,
-          away: nextMatch.awayTeam.name,
+          home: nextMatch.homeTeam.tla,
+          away: nextMatch.awayTeam.tla,
           competition: nextMatch.competition.name
         } : null
       },
