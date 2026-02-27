@@ -4,7 +4,7 @@
 
           <section class="grid grid-cols-6 grid-rows-2 items-center ">
             <div class="col-start-1 col-span-2 row-start-1 flex justify-center "><Weather /></div>
-            <div class="col-start-1 col-span-2 row-start-2 flex justify-center "><Weather /></div>
+            <div class="col-start-1 col-span-2 row-start-2 flex justify-center "><Stocks /></div>
             <div class="col-start-3 col-span-2 row-start-1 flex justify-center "><Weather /></div>
             <div class="col-start-3 col-span-2 row-start-2 flex justify-center "><Weather /></div>
 
@@ -35,13 +35,15 @@
             </div>
             </template>
           </section>
-          
+
+
     </div>
 
 </template>
 
 <script setup>
 import Weather from "../components/Weather.vue";
+import Stocks from "~~/components/Stocks.vue";
 import FootballLastMatch from "~~/components/FootballLastMatch.vue";
 import FootballNextMatch from "~~/components/FootballNextMatch.vue";
 import FootballTable from "~~/components/FootballTable.vue";
