@@ -6,7 +6,7 @@
             <div class="col-start-1 col-span-2 row-start-1 flex justify-center "><Weather /></div>
             <div class="col-start-1 col-span-2 row-start-2 flex justify-center "><Stocks /></div>
             <div class="col-start-3 col-span-2 row-start-1 flex justify-center "><Weather /></div>
-            <div class="col-start-3 col-span-2 row-start-2 flex justify-center "><Weather /></div>
+            <div class="col-start-3 col-span-2 row-start-2 flex justify-center "><News /></div>
 
             <!-- Football: shared loading/error state -->
             <template v-if="footballError">
@@ -44,6 +44,7 @@
 <script setup>
 import Weather from "../components/Weather.vue";
 import Stocks from "~~/components/Stocks.vue";
+import News from "~~/components/News.vue";
 import FootballLastMatch from "~~/components/FootballLastMatch.vue";
 import FootballNextMatch from "~~/components/FootballNextMatch.vue";
 import FootballTable from "~~/components/FootballTable.vue";
