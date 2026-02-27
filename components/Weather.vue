@@ -5,7 +5,7 @@
     <div v-else-if="weather" class="weather-content">
       
       <!-- Current Weather -->
-      <div class="current p-2 rounded-md flex flex-col items-center justify-center">
+      <div class="current p-2 rounded-md flex flex-col items-center justify-center ">
         <h2>{{ weather.location }}</h2>
         <div class="flex flex-wrap gap-4 justify-center items-center w-full mb-2">
           <div class="temp text-4xl font-bold text-blue-300">{{ Math.round(weather.current.temp) }}°C</div>
