@@ -96,10 +96,12 @@ const startAutoScroll = () => {
     if (el.scrollTop + el.clientHeight + 1 >= el.scrollHeight) {
       // Pause for 5 seconds
       isPaused = true;
-      setTimeout(() => {
-        el.scrollTop = 0;
-        isPaused = false;
-      }, 5000);
+setTimeout(() => {
+  el.scrollTop = 0;
+  setTimeout(() => {
+    isPaused = false;
+  }, 5000);
+}, 5000);
     } else {
       el.scrollTop += step;
     }
