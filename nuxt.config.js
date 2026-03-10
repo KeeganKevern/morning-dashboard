@@ -12,5 +12,8 @@ export default defineNuxtConfig({
   // Disable TypeScript
   typescript: {
     typeCheck: false
+  },
+  nitro: {
+    preset: 'node-server'
   }
 })

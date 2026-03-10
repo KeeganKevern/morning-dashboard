@@ -1,11 +1,11 @@
 <template>
-    <div class="bg-black text-white">
-        <h1 class="text-2xl font-bold text-center text-blue-500 p-2">{{ titleDate }}</h1>
+    <div class="bg-black text-white min-h-screen flex flex-col  justify-evenly ">
+        <h1 class="text-4xl font-bold text-center text-blue-500 p-2">{{ titleDate }}</h1>
 
-          <section class="grid grid-cols-6 grid-rows-2 items-center ">
+          <section class="grid grid-cols-6 grid-rows-2 items-center  ">
             <div class="col-start-1 col-span-2 row-start-1 flex justify-center "><Weather /></div>
             <div class="col-start-1 col-span-2 row-start-2 flex justify-center "><Stocks /></div>
-            <div class="col-start-3 col-span-2 row-start-1 flex justify-center "><Weather /></div>
+            <div class="col-start-3 col-span-2 row-start-1 flex justify-center "><Photos /></div>
             <div class="col-start-3 col-span-2 row-start-2 flex justify-center "><News /></div>
 
             <!-- Football: shared loading/error state -->
@@ -48,6 +48,7 @@ import News from "~~/components/News.vue";
 import FootballLastMatch from "~~/components/FootballLastMatch.vue";
 import FootballNextMatch from "~~/components/FootballNextMatch.vue";
 import FootballTable from "~~/components/FootballTable.vue";
+import Photos from "~~/components/Photos.vue";
 
 const titleDate = ref(null);
 const apiData = ref(null);

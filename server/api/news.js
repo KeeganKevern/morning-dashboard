@@ -3,8 +3,8 @@ const CATEGORIES = [
     { id: 'uk', label: 'UK', subreddit: 'uknews' },
     { id: 'football', label: 'Football', subreddit: 'soccer' },
     { id: 'celebrity', label: 'Celebrity', subreddit: 'entertainment' },
-    { id: 'truecrime', label: 'Murder Investigations', subreddit: 'TrueCrimeDiscussion' },
-    { id: 'casefile', label: 'Casefile Podcast', subreddit: 'Casefile' }
+    // { id: 'truecrime', label: 'Murder Investigations', subreddit: 'TrueCrimeDiscussion' },
+    // { id: 'casefile', label: 'Casefile Podcast', subreddit: 'Casefile' }
   ];
   
   const fetchRedditTop = async (subreddit, limit) => {
@@ -26,7 +26,7 @@ const CATEGORIES = [
         comments: data.num_comments,
         createdAt: new Date(data.created_utc * 1000).toISOString()
       }))
-      .slice(0, limit);
+      .slice(2, limit);
   };
   
   const fetchRedditHot = async (subreddit, limit) => {
@@ -48,7 +48,7 @@ const CATEGORIES = [
         comments: data.num_comments,
         createdAt: new Date(data.created_utc * 1000).toISOString()
       }))
-      .slice(0, limit);
+      .slice(2, limit);
   };
   
   const fetchCategory = async (category) => {
@@ -56,8 +56,8 @@ const CATEGORIES = [
       // Special handling for football: 3 general + 2 Premier League
       if (category.id === 'football') {
         const [general, premier] = await Promise.all([
-          fetchRedditTop('soccer', 3),
-          fetchRedditTop('premierleague', 2)
+          fetchRedditHot('soccer', 6),
+          fetchRedditTop('premierleague', 6)
         ]);
         return {
           id: category.id,
@@ -89,7 +89,7 @@ const CATEGORIES = [
         };
       }
       
-      const items = await fetchRedditTop(category.subreddit, 3);
+      const items = await fetchRedditTop(category.subreddit, 7);
       return {
         id: category.id,
         label: category.label,
