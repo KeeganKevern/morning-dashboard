@@ -4,9 +4,9 @@
     <div v-else-if="error" class="text-red-400 text-xs">
       {{ error }}
     </div>
-    <div v-else-if="sections.length" class="h-full flex flex-col gap-2">
+    <div v-else-if="articles.length" class="h-full flex flex-col gap-2">
       <div class="flex items-baseline justify-between text-xs">
-        <span class="font-semibold text-lg under">Headlines</span>
+        <span class="font-semibold text-lg">Headlines</span>
         <span class="text-[0.7rem] text-slate-400">
           {{ lastUpdatedLabel }}
         </span>
@@ -16,26 +16,12 @@
         class="flex-1 overflow-y-auto overflow-x-hidden pr-1 space-y-2 text-xs news-scroll"
       >
         <div
-          v-for="section in sections"
-          :key="section.id"
+          v-for="article in articles"
+          :key="article.id"
+          class="space-y-0.5"
         >
-          <div class="font-semibold text-[0.9rem] text-slate-200">
-            {{ section.label }}
-          </div>
-          <ul class="list-disc list-inside space-y-0.5">
-
-            <li
-              v-for="item in section.items"
-              :key="item.id"
-              class="truncate"
-            >
-              <span class="text-[0.9rem]">
-                {{ item.title }}
-              </span>
-             
-            </li>
-          </ul>
-          <br/>
+          <div class="text-[0.9rem] leading-snug">{{ article.title }}</div>
+          <div class="text-[0.7rem] text-slate-400">{{ article.source }}</div>
         </div>
       </div>
     </div>
@@ -43,7 +29,7 @@
 </template>
 
 <script setup>
-const sections = ref([]);
+const articles = ref([]);
 const loading = ref(true);
 const error = ref(null);
 const updated = ref(null);
@@ -55,7 +41,7 @@ const fetchNews = async () => {
   try {
     loading.value = true;
     const data = await $fetch('/api/news');
-    sections.value = data?.sections ?? [];
+    articles.value = data?.articles ?? [];
     updated.value = data?.updated ?? null;
     error.value = null;
   } catch (e) {

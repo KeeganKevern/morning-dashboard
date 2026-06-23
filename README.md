@@ -1,75 +1,48 @@
-# Nuxt Minimal Starter
+# Morning Dashboard
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A personal morning briefing screen — designed to be opened once at the start of the day, or left running on a dedicated display. Pulls together everything relevant at a glance before you get going.
+
+## What It Shows
+
+- **Weather** — current conditions and hourly forecast for York
+- **Liverpool FC** — next fixture, last result, and Premier League table
+- **Stock Indices** — 6-month chart for S&P 500, NASDAQ, FTSE 100, and S&P 100
+- **News Headlines** — biggest stories of the day, auto-scrolling
+- **Photos** — a personal photo frame, cycling through a random image from your own collection
+
+## Vision
+
+The dashboard is personal infrastructure, not a product. It's built around specific interests and stays open all day, refreshing quietly in the background.
+
+- **Photos** should feel like a digital photo frame — showing your own photos rather than random stock imagery
+- **Stocks** are a quick pulse check on market conditions, not a trading tool
+- **News** should surface the biggest stories of the day from a reliable source, not social media noise
 
 ## Setup
 
-Make sure to install dependencies:
+Install dependencies:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+Copy `.env.example` to `.env` and fill in your API keys:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+cp .env.example .env
 ```
 
-## Production
+Required keys:
 
-Build the application for production:
+| Variable | Source |
+|---|---|
+| `OPENWEATHER_API_KEY` | [openweathermap.org](https://openweathermap.org/api) |
+| `FOOTBALL_DATA_API_KEY` | [football-data.org](https://www.football-data.org/) |
+
+## Development
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run dev       # http://localhost:3000
+npm run build     # production build
+npm run preview   # preview production build
 ```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
