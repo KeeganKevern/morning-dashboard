@@ -1,13 +1,13 @@
 <template>
-  <div class="overflow-x-auto">
-    <table class="text-xs bg-gray-900 rounded-md shadow-sm">
-      <thead class="bg-gray-900">
-        <tr>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden w-full">
+    <table class="text-xs w-full">
+      <thead>
+        <tr class="border-b border-zinc-800">
           <th
             v-for="column in tableColumns"
             :key="column.key"
             :class="[
-              'px-1.5 py-1 font-semibold text-gray-00 border-b border-gray-400',
+              'px-2 py-1.5 font-semibold text-[0.65rem] tracking-widest uppercase text-zinc-400',
               column.align === 'center' ? 'text-center' : 'text-left',
               column.headerClass
             ]"
@@ -21,15 +21,15 @@
           v-for="team in table"
           :key="team.position"
           :class="[
-            'border-b border-gray-600',
-            { 'bg-red-600': team.team === 'Liverpool FC' }
+            'border-b border-zinc-800/50',
+            team.team === 'Liverpool FC' ? 'bg-red-600' : ''
           ]"
         >
           <td
             v-for="column in tableColumns"
             :key="column.key"
             :class="[
-              'px-1.5 py-0.5',
+              'px-2 py-0.5',
               column.align === 'center' ? 'text-center' : 'text-left',
               column.cellClass
             ]"
@@ -44,14 +44,14 @@
 
 <script setup>
 const tableColumns = [
-  { key: 'position', label: 'Pos', align: 'left', cellClass: 'font-medium' },
-  { key: 'team', label: 'Team', align: 'left', cellClass: 'font-medium min-w-[100px]' },
-  { key: 'played', label: 'P', align: 'center' },
-  { key: 'won', label: 'W', align: 'center' },
-  { key: 'drawn', label: 'D', align: 'center' },
-  { key: 'lost', label: 'L', align: 'center' },
-  { key: 'goalDifference', label: 'GD', align: 'center' },
-  { key: 'points', label: 'Pts', align: 'center', cellClass: 'font-bold text-amber-300 border-l' }
+  { key: 'position', label: 'Pos', align: 'left', cellClass: 'text-zinc-400' },
+  { key: 'team', label: 'Team', align: 'left', cellClass: 'font-medium min-w-[100px] text-zinc-100' },
+  { key: 'played', label: 'P', align: 'center', cellClass: 'text-zinc-400' },
+  { key: 'won', label: 'W', align: 'center', cellClass: 'text-zinc-400' },
+  { key: 'drawn', label: 'D', align: 'center', cellClass: 'text-zinc-400' },
+  { key: 'lost', label: 'L', align: 'center', cellClass: 'text-zinc-400' },
+  { key: 'goalDifference', label: 'GD', align: 'center', cellClass: 'text-zinc-400' },
+  { key: 'points', label: 'Pts', align: 'center', cellClass: 'font-bold text-white border-l border-zinc-800' }
 ];
 
 defineProps({
@@ -61,4 +61,3 @@ defineProps({
   }
 });
 </script>
-

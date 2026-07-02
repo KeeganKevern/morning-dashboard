@@ -1,17 +1,17 @@
 <template>
-  <div class="bg-slate-800 rounded-md p-3 text-white ">
-    <div v-if="loading">Loading markets...</div>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white w-full">
+    <div v-if="loading" class="text-zinc-500 text-sm">Loading markets...</div>
     <div v-else-if="error" class="text-red-400 text-sm">{{ error }}</div>
     <div v-else-if="indices.length" class="grid grid-cols-2 gap-2">
       <div
         v-for="index in indices"
         :key="index.id"
-        class="bg-slate-900 rounded-md px-2 py-2 flex flex-col gap-1 "
+        class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col gap-1"
       >
         <div class="flex justify-between items-baseline text-xs">
           <div class="flex flex-col">
-            <span class="font-semibold">{{ index.label }}</span>
-            <span v-if="index.points.length" class="text-[0.7rem] text-slate-400">
+            <span class="font-medium text-zinc-50">{{ index.label }}</span>
+            <span v-if="index.points.length" class="text-[0.65rem] text-zinc-500">
               {{ formatShortDate(index.firstDate) }} – {{ formatShortDate(index.lastDate) }}
             </span>
           </div>
@@ -24,7 +24,7 @@
           </span>
         </div>
 
-        <div class="h-12 w-40">
+        <div class="h-12 w-full">
           <svg
             v-if="index.points.length"
             :viewBox="`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`"
@@ -36,7 +36,7 @@
                 :x2="tick.x"
                 y1="0"
                 :y2="VIEWBOX_HEIGHT"
-                class="stroke-slate-700"
+                class="stroke-zinc-700"
                 stroke-width="0.3"
                 stroke-linecap="round"
                 opacity="0.6"
@@ -46,7 +46,7 @@
                 :y="VIEWBOX_HEIGHT - 1"
                 font-size="3"
                 text-anchor="middle"
-                class="fill-slate-400"
+                class="fill-zinc-500"
               >
                 {{ tick.label }}
               </text>
@@ -60,9 +60,7 @@
               stroke-linecap="round"
             />
           </svg>
-          <div v-else class="text-[0.7rem] text-slate-400">
-            No data
-          </div>
+          <div v-else class="text-[0.65rem] text-zinc-500">No data</div>
         </div>
       </div>
     </div>

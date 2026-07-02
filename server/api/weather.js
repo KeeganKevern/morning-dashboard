@@ -21,6 +21,8 @@ export default async (event) => {
       `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&units=metric&appid=${API_KEY}`
     );
     
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       location: 'York',
       current: {
@@ -29,16 +31,20 @@ export default async (event) => {
         description: current.weather[0].description,
         icon: current.weather[0].icon,
         humidity: current.main.humidity,
-        wind_speed: current.wind.speed
+        wind_speed: current.wind.speed,
+        sunrise: new Date(current.sys.sunrise * 1000).toISOString(),
+        sunset: new Date(current.sys.sunset * 1000).toISOString()
       },
-      hourly: forecast.list.slice(0, 5)
-      .map(item => ({
-        time: new Date(item.dt * 1000).toISOString(),
-        temp: item.main.temp,
-        description: item.weather[0].description,
-        icon: item.weather[0].icon,
-        pop: item.pop * 100 // probability of precipitation as percentage
-      }))
+      hourly: forecast.list
+        .filter(item => item.dt >= now)
+        .slice(0, 5)
+        .map(item => ({
+          time: new Date(item.dt * 1000).toISOString(),
+          temp: item.main.temp,
+          description: item.weather[0].description,
+          icon: item.weather[0].icon,
+          pop: item.pop * 100
+        }))
     };
   } catch (error) {
     console.error('Weather API error:', error.data || error);

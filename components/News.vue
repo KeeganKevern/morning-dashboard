@@ -1,27 +1,23 @@
 <template>
-  <div class="bg-slate-800 rounded-md p-3 text-white w-120 h-56">
-    <div v-if="loading">Loading news...</div>
-    <div v-else-if="error" class="text-red-400 text-xs">
-      {{ error }}
-    </div>
-    <div v-else-if="articles.length" class="h-full flex flex-col gap-2">
-      <div class="flex items-baseline justify-between text-xs">
-        <span class="font-semibold text-lg">Headlines</span>
-        <span class="text-[0.7rem] text-slate-400">
-          {{ lastUpdatedLabel }}
-        </span>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white w-full h-full max-h-[60vh] flex flex-col">
+    <div v-if="loading" class="text-zinc-500 text-sm">Loading news...</div>
+    <div v-else-if="error" class="text-red-400 text-xs">{{ error }}</div>
+    <div v-else-if="articles.length" class="flex-1 min-h-0 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">Headlines</span>
+        <span class="text-[0.65rem] text-zinc-500">{{ lastUpdatedLabel }}</span>
       </div>
       <div
         ref="scrollContainer"
-        class="flex-1 overflow-y-auto overflow-x-hidden pr-1 space-y-2 text-xs news-scroll"
+        class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 space-y-3 news-scroll"
       >
         <div
           v-for="article in articles"
           :key="article.id"
           class="space-y-0.5"
         >
-          <div class="text-[0.9rem] leading-snug">{{ article.title }}</div>
-          <div class="text-[0.7rem] text-slate-400">{{ article.source }}</div>
+          <div class="text-sm text-zinc-100 leading-snug">{{ article.title }}</div>
+          <div class="text-[0.7rem] text-zinc-500">{{ article.source }}</div>
         </div>
       </div>
     </div>

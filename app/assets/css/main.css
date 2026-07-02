@@ -3,3 +3,9 @@
 @source "../app.vue";
 @source "../**/*.vue";
 @source "../../../components/**/*.{vue,js,ts}";
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #09090b;
+  color: #fafafa;
+}

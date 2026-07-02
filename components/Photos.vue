@@ -1,8 +1,8 @@
 <template>
   <div v-if="loading">Loading photo...</div>
   <div v-else-if="e" class="text-red-400 text-xs">{{ e }}</div>
-  <div v-else-if="photoUrl" class="w-fit h-full flex justify-center items-center bg-slate-800 rounded-md p-2 shadow-inner">
-    <img :src="photoUrl" alt="Photo" class="rounded-md border-10 border-amber-900 shadow-md" />
+  <div v-else-if="photoUrl" class="w-full h-full flex justify-center items-center bg-zinc-900 border border-zinc-800 rounded-xl p-2">
+    <img :src="photoUrl" alt="Photo" class="rounded-lg max-h-full max-w-full object-contain" />
   </div>
 </template>
 

@@ -25,22 +25,21 @@ export default async (event) => {
     });
 
     
-    // Get Liverpool's matches
-    const matches = await $fetch('https://api.football-data.org/v4/teams/64/matches?limit=50', {
-      headers: { 'X-Auth-Token': API_KEY }
-    });
+    // Get upcoming and recently finished matches separately
+    const [upcoming, finished] = await Promise.all([
+      $fetch('https://api.football-data.org/v4/teams/64/matches?status=SCHEDULED&limit=5', {
+        headers: { 'X-Auth-Token': API_KEY }
+      }),
+      $fetch('https://api.football-data.org/v4/teams/64/matches?status=FINISHED&limit=5', {
+        headers: { 'X-Auth-Token': API_KEY }
+      })
+    ]);
 
-    
-
-    
-    const now = new Date();
-    const lastMatch = matches.matches
-      .filter(m => new Date(m.utcDate) < now && m.status === 'FINISHED')
-      .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))[0];
-      
-    const nextMatch = matches.matches
-      .filter(m => new Date(m.utcDate) > now)
+    const nextMatch = upcoming.matches
       .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate))[0];
+
+    const lastMatch = finished.matches
+      .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))[0];
     
     return {
       table: table.standings[0].table.map(team => ({

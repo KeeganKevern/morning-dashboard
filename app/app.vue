@@ -1,44 +1,35 @@
 <template>
-    <div class="bg-black text-white min-h-screen flex flex-col  justify-evenly ">
-        <h1 class="text-4xl font-bold text-center text-blue-500 p-2">{{ titleDate }}</h1>
+  <div class="bg-zinc-950 text-white h-screen flex flex-col overflow-hidden">
+    <header class="flex items-center justify-center px-4 py-2 border-b border-zinc-800">
+      <span class="text-sm font-medium text-zinc-400 tracking-widest uppercase">{{ titleDate }}</span>
+    </header>
 
-          <section class="grid grid-cols-6 grid-rows-2 items-center  ">
-            <div class="col-start-1 col-span-2 row-start-1 flex justify-center "><Weather /></div>
-            <div class="col-start-1 col-span-2 row-start-2 flex justify-center "><Stocks /></div>
-            <div class="col-start-3 col-span-2 row-start-1 flex justify-center "><Photos /></div>
-            <div class="col-start-3 col-span-2 row-start-2 flex justify-center "><News /></div>
+    <section class="flex-1 grid grid-cols-6 grid-rows-[1fr_1fr_auto] gap-3 p-3 min-h-0">
+      <div class="col-start-1 col-span-2 row-start-1 h-full"><Weather /></div>
+      <div class="col-start-1 col-span-2 row-start-2 h-full"><Stocks /></div>
+      <div class="col-start-3 col-span-2 row-start-1 h-full"><Photos /></div>
+      <div class="col-start-3 col-span-2 row-start-2 h-full"><News /></div>
+      <div class="col-start-1 col-span-4 row-start-3"><Tasks /></div>
 
-            <!-- Football: shared loading/error state -->
-            <template v-if="footballError">
-              <div class="col-start-3 row-start-1 row-span-2 flex justify-center items-center">
-                {{ footballError }}
-              </div>
-            </template>
-            <template v-else-if="!footData">
-              <div class="col-start-3 row-start-1 row-span-2 flex justify-center items-center">
-                Loading football data...
-              </div>
-            </template>
-            <template v-else >
-              <div class ="col-start-5 col-span-2 row-span-2 flex flex-col items-center gap-4">
-                <div class="flex flex-row items-center gap-16"> 
-                  <div >
-                <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
-              </div>
-              <div >
-                <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
-              </div></div>
-             
-              <div>
-                <FootballTable :table="footData.table ?? []" />
-              </div>
-            </div>
-            </template>
-          </section>
-
-
-    </div>
-
+      <template v-if="footballError">
+        <div class="col-start-5 col-span-2 row-span-3 h-full flex justify-center items-center text-zinc-500 text-sm">
+          {{ footballError }}
+        </div>
+      </template>
+      <template v-else-if="!footData">
+        <div class="col-start-5 col-span-2 row-span-3 h-full flex justify-center items-center text-zinc-500 text-sm">
+          Loading football data...
+        </div>
+      </template>
+      <template v-else>
+        <div class="col-start-5 col-span-2 row-span-3 h-full flex flex-col gap-3">
+          <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
+          <FootballTable :table="footData.table ?? []" />
+          <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
+        </div>
+      </template>
+    </section>
+  </div>
 </template>
 
 <script setup>
@@ -49,16 +40,14 @@ import FootballLastMatch from "~~/components/FootballLastMatch.vue";
 import FootballNextMatch from "~~/components/FootballNextMatch.vue";
 import FootballTable from "~~/components/FootballTable.vue";
 import Photos from "~~/components/Photos.vue";
+import Tasks from "~~/components/Tasks.vue";
 
 const titleDate = ref(null);
-const apiData = ref(null);
 const footData = ref(null);
 const footballError = ref(null);
 
 onMounted(async () => {
   titleDate.value = createTitleDate();
- 
-  apiData.value = await $fetch("/api/test");
   try {
     footData.value = await $fetch("/api/football");
   } catch (e) {
@@ -66,20 +55,11 @@ onMounted(async () => {
   }
 });
 
-function createTitleDate (){
+function createTitleDate() {
   const d = new Date();
-  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' })+ " "; // Friday
-  const month = d.toLocaleDateString('en-GB', { month: 'short' });    // Feb
-  const day = d.getDate()+" "; 
-
-  return weekday + day + month;
-
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
+  const day = d.getDate();
+  const month = d.toLocaleDateString('en-GB', { month: 'short' });
+  return `${weekday} ${day} ${month}`;
 }
-
-
-
 </script>
-
-<style>
-
-</style>
