@@ -17,8 +17,11 @@ export default async (_event) => {
     throw createError({ statusCode: 502, message: `NewsAPI error: ${data.message}` });
   }
 
+  // NewsAPI sometimes scrapes a login or block page instead of the article
+  const JUNK = /zscaler|authentication|sign in|log in|access denied|are you a robot|enable javascript|cookies? (policy|settings)/i;
+
   const articles = (data.articles || [])
-    .filter(a => a.title && a.title !== '[Removed]')
+    .filter(a => a.title && a.title !== '[Removed]' && !JUNK.test(a.title))
     .map((a, i) => ({ id: i, title: a.title, source: a.source?.name ?? '', url: a.url }));
 
   if (!articles.length) {
