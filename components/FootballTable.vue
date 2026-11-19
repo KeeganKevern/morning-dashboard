@@ -1,6 +1,7 @@
 <template>
   <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden w-full">
-    <table class="text-xs w-full">
+    <Transition name="table-slide" mode="out-in">
+    <table :key="page" class="text-xs w-full table-fixed tabular-nums">
       <thead>
         <tr class="border-b border-zinc-800">
           <th
@@ -18,7 +19,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="team in table"
+          v-for="team in rows"
           :key="team.position"
           :class="[
             'border-b border-zinc-800/50',
@@ -39,25 +40,55 @@
         </tr>
       </tbody>
     </table>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 const tableColumns = [
-  { key: 'position', label: 'Pos', align: 'left', cellClass: 'text-zinc-400' },
-  { key: 'team', label: 'Team', align: 'left', cellClass: 'font-medium min-w-[100px] text-zinc-100' },
-  { key: 'played', label: 'P', align: 'center', cellClass: 'text-zinc-400' },
-  { key: 'won', label: 'W', align: 'center', cellClass: 'text-zinc-400' },
-  { key: 'drawn', label: 'D', align: 'center', cellClass: 'text-zinc-400' },
-  { key: 'lost', label: 'L', align: 'center', cellClass: 'text-zinc-400' },
-  { key: 'goalDifference', label: 'GD', align: 'center', cellClass: 'text-zinc-400' },
-  { key: 'points', label: 'Pts', align: 'center', cellClass: 'font-bold text-white border-l border-zinc-800' }
+  { key: 'position', label: 'Pos', align: 'left', headerClass: 'w-10', cellClass: 'text-zinc-400' },
+  { key: 'team', label: 'Team', align: 'left', cellClass: 'font-medium truncate text-zinc-100' },
+  { key: 'played', label: 'P', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
+  { key: 'won', label: 'W', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
+  { key: 'drawn', label: 'D', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
+  { key: 'lost', label: 'L', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
+  { key: 'goalDifference', label: 'GD', align: 'center', headerClass: 'w-10', cellClass: 'text-zinc-400' },
+  { key: 'points', label: 'Pts', align: 'center', headerClass: 'w-11', cellClass: 'font-bold text-white border-l border-zinc-800' }
 ];
 
-defineProps({
+const props = defineProps({
   table: {
     type: Array,
     default: () => []
   }
 });
+
+// Show 10 teams at a time, sliding between 1–10 and 11–20 every 30 seconds
+const PAGE_SIZE = 10;
+const SLIDE_MS = 30 * 1000;
+
+const page = ref(0);
+const pageCount = computed(() => Math.max(1, Math.ceil(props.table.length / PAGE_SIZE)));
+const rows = computed(() => props.table.slice(page.value * PAGE_SIZE, (page.value + 1) * PAGE_SIZE));
+
+let timer = null;
+onMounted(() => {
+  timer = setInterval(() => (page.value = (page.value + 1) % pageCount.value), SLIDE_MS);
+});
+onBeforeUnmount(() => clearInterval(timer));
 </script>
+
+<style>
+.table-slide-enter-active,
+.table-slide-leave-active {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+.table-slide-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.table-slide-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+</style>
