@@ -11,10 +11,7 @@
 
       <template v-if="footData">
         <div class="col-start-5 col-span-2 row-span-2 h-full flex flex-col gap-3">
-          <div class="grid grid-cols-2 gap-3 shrink-0">
-            <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
-            <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
-          </div>
+          <FootballRotator :data="footData" />
           <FootballTable :table="footData.table ?? []" />
           <span class="text-[0.65rem] text-zinc-500 text-right">{{ footballUpdated }}</span>
         </div>
@@ -33,8 +30,7 @@
 <script setup>
 import Weather from "../components/Weather.vue";
 import Ticker from "~~/components/Ticker.vue";
-import FootballLastMatch from "~~/components/FootballLastMatch.vue";
-import FootballNextMatch from "~~/components/FootballNextMatch.vue";
+import FootballRotator from "~~/components/FootballRotator.vue";
 import FootballTable from "~~/components/FootballTable.vue";
 import Photos from "~~/components/Photos.vue";
 import Tasks from "~~/components/Tasks.vue";
