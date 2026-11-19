@@ -1,8 +1,12 @@
 <template>
   <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white w-full">
     <div v-if="loading" class="text-zinc-500 text-sm">Loading markets...</div>
-    <div v-else-if="error" class="text-red-400 text-sm">{{ error }}</div>
-    <div v-else-if="indices.length" class="grid grid-cols-2 gap-2">
+    <div v-else-if="error && !data" class="text-red-400 text-sm">{{ error }}</div>
+    <div v-else-if="indices.length" class="flex items-center justify-between mb-2">
+      <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">Markets</span>
+      <span class="text-[0.65rem] text-zinc-500">{{ updatedLabel }}</span>
+    </div>
+    <div v-if="indices.length" class="grid grid-cols-2 gap-2">
       <div
         v-for="index in indices"
         :key="index.id"
@@ -68,26 +72,12 @@
 </template>
 
 <script setup>
-const indices = ref([]);
-const loading = ref(true);
-const error = ref(null);
+const { data, loading, error: fetchError, updatedLabel } = usePolled('/api/stocks', 60 * MINUTE);
+const indices = computed(() => data.value?.indices ?? []);
+const error = computed(() => (fetchError.value ? 'Failed to load markets' : null));
 
 const VIEWBOX_WIDTH = 80;
 const VIEWBOX_HEIGHT = 30;
-
-const fetchStocks = async () => {
-  try {
-    loading.value = true;
-    const data = await $fetch('/api/stocks');
-    indices.value = data?.indices ?? [];
-    error.value = null;
-  } catch (e) {
-    console.error(e);
-    error.value = 'Failed to load markets';
-  } finally {
-    loading.value = false;
-  }
-};
 
 const formatShortDate = (iso) => {
   if (!iso) return '';
@@ -159,11 +149,5 @@ const changeClass = (points) => {
   if (!c) return 'text-slate-200';
   return c.diff >= 0 ? 'text-emerald-400' : 'text-red-400';
 };
-
-onMounted(() => {
-  fetchStocks();
-  // Refresh hourly
-  setInterval(fetchStocks, 60 * 60 * 1000);
-});
 </script>
 

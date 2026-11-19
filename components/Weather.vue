@@ -49,33 +49,6 @@
 </template>
 
 <script setup>
-const weather = ref(null);
-const loading = ref(true);
-const error = ref(null);
-let timer = null;
-
-const fetchWeather = async () => {
-  try {
-    loading.value = true;
-    weather.value = await $fetch('/api/weather');
-    error.value = null;
-  } catch (e) {
-    error.value = 'Failed to load weather';
-    console.error(e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const updatedLabel = computed(() => {
-  if (!weather.value?.updated) return '';
-  return new Date(weather.value.updated).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-});
-
-onMounted(() => {
-  fetchWeather();
-  timer = setInterval(fetchWeather, 30 * 60 * 1000);
-});
-
-onBeforeUnmount(() => clearInterval(timer));
+const { data: weather, loading, error: fetchError, updatedLabel } = usePolled('/api/weather', 30 * MINUTE);
+const error = computed(() => (fetchError.value ? 'Failed to load weather' : null));
 </script>
