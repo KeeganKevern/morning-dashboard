@@ -4,7 +4,7 @@ A personal morning briefing screen — running on a Raspberry Pi 3 in kiosk mode
 
 ## What It Shows
 
-- **Weather** — current conditions and hourly forecast for York
+- **Weather** — current conditions and an hourly forecast for York from 06:00 to 18:00 (tomorrow's after 18:00), from [Open-Meteo](https://open-meteo.com/) (no API key needed)
 - **Liverpool FC** — next fixture, last result, and Premier League table
 - **Stock Indices** — 6-month chart for S&P 500, NASDAQ, FTSE 100, and S&P 100
 - **News Headlines** — biggest stories of the day, auto-scrolling
@@ -49,7 +49,6 @@ Required keys:
 
 | Variable | Source |
 |---|---|
-| `OPENWEATHER_API_KEY` | [openweathermap.org](https://openweathermap.org/api) |
 | `FOOTBALL_DATA_API_KEY` | [football-data.org](https://www.football-data.org/) |
 | `NEWS_API_KEY` | [newsapi.org](https://newsapi.org/) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) — create an OAuth 2.0 Client ID (type "Desktop app"), enable the Tasks API for the project |

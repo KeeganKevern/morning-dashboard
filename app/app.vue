@@ -11,21 +11,17 @@
       <div class="col-start-3 col-span-2 row-start-2 h-full"><News /></div>
       <div class="col-start-1 col-span-4 row-start-3"><Tasks /></div>
 
-      <template v-if="footballError">
-        <div class="col-start-5 col-span-2 row-span-3 h-full flex justify-center items-center text-zinc-500 text-sm">
-          {{ footballError }}
-        </div>
-      </template>
-      <template v-else-if="!footData">
-        <div class="col-start-5 col-span-2 row-span-3 h-full flex justify-center items-center text-zinc-500 text-sm">
-          Loading football data...
-        </div>
-      </template>
-      <template v-else>
+      <template v-if="footData">
         <div class="col-start-5 col-span-2 row-span-3 h-full flex flex-col gap-3">
           <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
           <FootballTable :table="footData.table ?? []" />
           <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
+          <span class="text-[0.65rem] text-zinc-500 text-right">{{ footballUpdated }}</span>
+        </div>
+      </template>
+      <template v-else>
+        <div class="col-start-5 col-span-2 row-span-3 h-full flex justify-center items-center text-zinc-500 text-sm">
+          {{ footballLoading ? 'Loading football data...' : 'Failed to load football data' }}
         </div>
       </template>
     </section>
@@ -43,17 +39,19 @@ import Photos from "~~/components/Photos.vue";
 import Tasks from "~~/components/Tasks.vue";
 
 const titleDate = ref(null);
-const footData = ref(null);
-const footballError = ref(null);
+const {
+  data: footData,
+  loading: footballLoading,
+  updatedLabel: footballUpdated
+} = usePolled("/api/football", 60 * MINUTE);
 
-onMounted(async () => {
+// Keep the header date right if the dashboard is left on past midnight
+let dateTimer = null;
+onMounted(() => {
   titleDate.value = createTitleDate();
-  try {
-    footData.value = await $fetch("/api/football");
-  } catch (e) {
-    footballError.value = "Failed to load football data";
-  }
+  dateTimer = setInterval(() => (titleDate.value = createTitleDate()), MINUTE);
 });
+onBeforeUnmount(() => clearInterval(dateTimer));
 
 function createTitleDate() {
   const d = new Date();
