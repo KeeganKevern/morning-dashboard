@@ -7,7 +7,7 @@ A personal morning briefing screen — running on a Raspberry Pi 3 in kiosk mode
 - **Weather** — current conditions and an hourly forecast for York from 06:00 to 18:00 (tomorrow's after 18:00), from [Open-Meteo](https://open-meteo.com/) (no API key needed)
 - **Liverpool FC** — next fixture, last result, and Premier League table
 - **Stock Indices** — 6-month chart for S&P 500, NASDAQ, FTSE 100, and S&P 100
-- **News Headlines** — biggest stories of the day, auto-scrolling
+- **News Headlines** — two scrolling lines from RSS feeds: BBC News and York on top; Liverpool, Premier League, electrical and AI below
 - **Photos** — a photo frame, currently cycling through random stock images (Picsum) as a placeholder — see [Vision](#vision)
 - **Tasks** — to-do items logged from a phone via the Google Tasks app
 
@@ -17,7 +17,7 @@ The dashboard is personal infrastructure, not a product. It's built around speci
 
 - **Photos** should eventually feel like a digital photo frame showing your own photos rather than random stock imagery — deferred for now, revisit when that becomes a priority
 - **Stocks** are a quick pulse check on market conditions, not a trading tool — a rough 6-month trend plus the latest day-over-day move is enough, no need for a true intraday view
-- **News** should surface the biggest stories of the day from a reliable source, not social media noise — the current BBC News/Sport/Four-Four-Two mix is kept as-is even though it isn't personalized (e.g. no Liverpool FC keyword filtering); anything club-significant is expected to surface via BBC News anyway
+- **News** comes from RSS feeds (no key): the newest items from the last 24 hours, mixed by category, with a NEW badge on anything under an hour old
 - **Tasks** should let a to-do logged on a phone during the day show up on the dashboard the next active session, without the dashboard needing to be on to receive it. Since the Pi's server only runs during the active window, this means reading from an always-on third-party service (Google Tasks) rather than the Pi hosting its own capture endpoint
 - **Calendar was considered and dropped** — TimeTree (the calendar actually used) has no automatic way to export or sync events out to Google Calendar or anything else, only a one-way import of external calendars *into* TimeTree. Since maintaining events in two calendars manually isn't acceptable, there's no clean data source for a calendar widget right now
 
@@ -50,7 +50,6 @@ Required keys:
 | Variable | Source |
 |---|---|
 | `FOOTBALL_DATA_API_KEY` | [football-data.org](https://www.football-data.org/) |
-| `NEWS_API_KEY` | [newsapi.org](https://newsapi.org/) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) — create an OAuth 2.0 Client ID (type "Desktop app"), enable the Tasks API for the project |
 | `GOOGLE_REFRESH_TOKEN` | Run the one-time helper below once `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set |
 | `GOOGLE_TASKLIST_ID` | Defaults to `@default` (your primary Google Tasks list) — override if you want a specific list |
