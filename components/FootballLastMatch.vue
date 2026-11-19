@@ -15,7 +15,7 @@ defineProps({
   // Background and border classes; Liverpool red by default
   tone: {
     type: String,
-    default: 'bg-red-600 border-red-500'
+    default: 'bg-red-800 border-red-700'
   }
 });
 </script>

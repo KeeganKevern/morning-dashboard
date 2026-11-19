@@ -23,7 +23,7 @@
           :key="team.position"
           :class="[
             'border-b border-zinc-800/50',
-            team.team === 'Liverpool FC' ? 'bg-red-600' : ''
+            team.team === 'Liverpool FC' ? 'bg-red-800' : ''
           ]"
         >
           <td

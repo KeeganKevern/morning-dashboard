@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-const PIXELS_PER_SECOND = 70;
+const PIXELS_PER_SECOND = 60;
 const NEW_FOR_MS = 60 * 60 * 1000;
 
 const TAG_COLOURS = {

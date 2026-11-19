@@ -53,7 +53,7 @@ const cards = computed(() => {
   const { liverpool, england, results } = props.data;
 
   if (liverpool?.nextMatch || liverpool?.lastMatch) {
-    list.push({ key: 'liverpool', type: 'pair', label: 'Liverpool', tone: 'bg-red-600 border-red-500', next: liverpool.nextMatch, last: liverpool.lastMatch });
+    list.push({ key: 'liverpool', type: 'pair', label: 'Liverpool', tone: 'bg-red-800 border-red-700', next: liverpool.nextMatch, last: liverpool.lastMatch });
   }
   if (england) {
     list.push({ key: 'england', type: 'pair', label: 'England', tone: 'bg-blue-900 border-blue-700', next: england.nextMatch, last: england.lastMatch });
