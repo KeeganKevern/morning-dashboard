@@ -11,9 +11,11 @@
 
       <template v-if="footData">
         <div class="col-start-5 col-span-2 row-span-2 h-full flex flex-col gap-3">
-          <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
+          <div class="grid grid-cols-2 gap-3 shrink-0">
+            <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
+            <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
+          </div>
           <FootballTable :table="footData.table ?? []" />
-          <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
           <span class="text-[0.65rem] text-zinc-500 text-right">{{ footballUpdated }}</span>
         </div>
       </template>
