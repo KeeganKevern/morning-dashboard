@@ -8,7 +8,7 @@ A personal morning briefing screen — running on a Raspberry Pi 3 in kiosk mode
 - **Liverpool FC** — next fixture, last result, and Premier League table
 - **Stock Indices** — 6-month chart for S&P 500, NASDAQ, FTSE 100, and S&P 100
 - **News Headlines** — two scrolling lines from RSS feeds: BBC News and York on top; Liverpool, Premier League, electrical and AI below
-- **Photos** — a photo frame, currently cycling through random stock images (Picsum) as a placeholder — see [Vision](#vision)
+- **Photos** — a photo frame showing a random photo from the `PHOTOS_DIR` folder every minute, shown whole without cropping
 - **Tasks** — to-do items logged from a phone via the Google Tasks app
 
 ## Vision
@@ -53,6 +53,7 @@ Required keys:
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) — create an OAuth 2.0 Client ID (type "Desktop app"), enable the Tasks API for the project |
 | `GOOGLE_REFRESH_TOKEN` | Run the one-time helper below once `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set |
 | `GOOGLE_TASKLIST_ID` | Defaults to `@default` (your primary Google Tasks list) — override if you want a specific list |
+| `PHOTOS_DIR` | Folder of photos (jpg, png, webp) for the photo tile, e.g. the synced `My Drive/Dashboard Photos` folder; one random photo every minute, folder re-checked hourly |
 
 ### Getting a Google Tasks refresh token
 
