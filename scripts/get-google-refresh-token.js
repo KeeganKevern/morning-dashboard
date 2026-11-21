@@ -1,15 +1,23 @@
 // One-time helper: exchanges a Google OAuth consent for a long-lived refresh token
-// for the Tasks widget. Run with: node scripts/get-google-refresh-token.js
-// Requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET already set in .env, and
-// http://localhost:53682/oauth2callback added as an authorized redirect URI
-// on that OAuth client in the Google Cloud Console.
+// covering read-only Google Tasks (Today panel), Sheets (the job tracker) and
+// Drive (the photo folder). Run with: node scripts/get-google-refresh-token.js
+// Requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET already set in .env, from
+// a "Desktop app" OAuth client (which accepts the localhost redirect below).
 
-import 'dotenv/config';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+
+// Read the project's .env wherever the script is run from
+dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)) });
 import http from 'node:http';
 
 const PORT = 53682;
 const REDIRECT_URI = `http://localhost:${PORT}/oauth2callback`;
-const SCOPE = 'https://www.googleapis.com/auth/tasks.readonly';
+const SCOPE = [
+  'https://www.googleapis.com/auth/tasks.readonly',
+  'https://www.googleapis.com/auth/spreadsheets.readonly',
+  'https://www.googleapis.com/auth/drive.readonly'
+].join(' ');
 
 const clientId = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -27,7 +35,7 @@ authUrl.searchParams.set('scope', SCOPE);
 authUrl.searchParams.set('access_type', 'offline');
 authUrl.searchParams.set('prompt', 'consent');
 
-console.log('\nOpen this URL in a browser and sign in with the Google account whose tasks you want on the dashboard:\n');
+console.log('\nOpen this URL in a browser and sign in with the Google account that owns your tasks, the job tracker and the photo folder:\n');
 console.log(authUrl.toString());
 console.log('\nWaiting for the redirect back to localhost...\n');
 

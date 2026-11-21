@@ -7,7 +7,7 @@
     <section class="flex-1 grid grid-cols-6 grid-rows-[1fr_1fr] gap-3 p-3 pb-0 min-h-0">
       <div class="col-start-1 col-span-2 row-start-1 h-full"><Weather /></div>
       <div class="col-start-3 col-span-2 row-start-1 h-full"><Photos /></div>
-      <div class="col-start-1 col-span-4 row-start-2 h-full min-h-0"><Tasks /></div>
+      <div class="col-start-1 col-span-4 row-start-2 h-full min-h-0"><Today /></div>
 
       <template v-if="footData">
         <div class="col-start-5 col-span-2 row-span-2 h-full flex flex-col gap-3">
@@ -33,7 +33,7 @@ import Ticker from "~~/components/Ticker.vue";
 import FootballRotator from "~~/components/FootballRotator.vue";
 import FootballTable from "~~/components/FootballTable.vue";
 import Photos from "~~/components/Photos.vue";
-import Tasks from "~~/components/Tasks.vue";
+import Today from "~~/components/Today.vue";
 
 const titleDate = ref(null);
 const {
