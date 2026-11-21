@@ -5,6 +5,20 @@
       <span v-if="projects.data.value?.warning" class="text-[0.65rem] font-semibold text-amber-400">{{ projects.data.value.warning }}</span>
     </div>
 
+    <!-- Met Office warnings: only shown when there are any -->
+    <div v-if="metWarnings.length" class="mb-2 flex flex-col gap-1">
+      <div
+        v-for="(w, i) in metWarnings"
+        :key="i"
+        class="flex items-center gap-2 rounded-lg border px-2.5 py-1 text-sm leading-tight"
+        :class="LEVEL_STYLES[w.level]"
+      >
+        <span class="font-bold">⚠ {{ w.level[0].toUpperCase() + w.level.slice(1) }} warning: {{ w.hazard }}</span>
+        <span v-if="w.from" class="opacity-90">{{ w.from }} – {{ w.to }}</span>
+        <span class="ml-auto truncate text-xs opacity-75">{{ w.areas }}</span>
+      </div>
+    </div>
+
     <div class="flex-1 min-h-0 grid grid-cols-4 gap-4">
       <!-- TimeTree -->
       <section class="min-h-0 flex flex-col">
@@ -79,6 +93,14 @@ const events = usePolled('/api/timetree', 15 * MINUTE);
 const tasks = usePolled('/api/tasks', 5 * MINUTE);
 const jobs = usePolled('/api/jobs', 30 * MINUTE);
 const projects = usePolled('/api/projects', 60 * MINUTE);
+const warnings = usePolled('/api/warnings', 15 * MINUTE);
+
+const metWarnings = computed(() => warnings.data.value?.warnings ?? []);
+const LEVEL_STYLES = {
+  yellow: 'bg-yellow-400/15 border-yellow-500/60 text-yellow-200',
+  amber: 'bg-amber-500/20 border-amber-500 text-amber-200',
+  red: 'bg-red-600/25 border-red-500 text-red-200'
+};
 
 // 503 means a key or file isn't set up yet; anything else is a real failure
 const notSetUp = source => source.error.value?.statusCode === 503;
