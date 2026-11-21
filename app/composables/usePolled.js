@@ -4,6 +4,10 @@ export const MINUTE = 60 * 1000;
 // (football polls hourly, so one failed request would otherwise leave it stale for an hour).
 const RETRY_AFTER = 2 * MINUTE;
 
+// Every polled source reports here, so one "Updated" label can speak for the
+// whole screen: url -> { updatedAt, failing }
+const sources = reactive(new Map());
+
 // Fetches `url` on mount, then again every `intervalMs` while the page is open.
 // A failed refresh keeps the last good data on screen and flags it as stale,
 // so an unattended dashboard never blanks a widget because of one bad request.
@@ -27,6 +31,8 @@ export function usePolled(url, intervalMs) {
       error.value = e;
     } finally {
       loading.value = false;
+      // A 503 means a key isn't set up yet, which isn't a failing refresh
+      sources.set(url, { updatedAt: updatedAt.value, failing: !!error.value && error.value.statusCode !== 503 });
     }
   };
 
@@ -36,12 +42,6 @@ export function usePolled(url, intervalMs) {
     timer = setTimeout(loop, error.value ? Math.min(RETRY_AFTER, intervalMs) : intervalMs);
   };
 
-  const updatedLabel = computed(() => {
-    if (!updatedAt.value) return '';
-    const time = updatedAt.value.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    return error.value ? `Updated ${time} · retrying` : `Updated ${time}`;
-  });
-
   onMounted(loop);
 
   onBeforeUnmount(() => {
@@ -49,5 +49,19 @@ export function usePolled(url, intervalMs) {
     clearTimeout(timer);
   });
 
-  return { data, error, loading, updatedLabel, refresh };
+  return { data, error, loading, refresh };
+}
+
+// The screen-wide status: when anything last refreshed, and how many sources
+// are currently failing (and showing their last good data)
+export function useRefreshStatus() {
+  return computed(() => {
+    const all = [...sources.values()];
+    const times = all.map(s => s.updatedAt).filter(Boolean);
+    const latest = times.length ? new Date(Math.max(...times)) : null;
+    return {
+      time: latest?.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) ?? null,
+      failing: all.filter(s => s.failing).length
+    };
+  });
 }

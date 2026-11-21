@@ -8,7 +8,7 @@
             v-for="column in tableColumns"
             :key="column.key"
             :class="[
-              'px-2 py-1.5 font-semibold text-[0.65rem] tracking-widest uppercase text-zinc-400',
+              'px-2 py-1 font-semibold text-[0.65rem] tracking-widest uppercase text-zinc-400',
               column.align === 'center' ? 'text-center' : 'text-left',
               column.headerClass
             ]"
@@ -30,7 +30,7 @@
             v-for="column in tableColumns"
             :key="column.key"
             :class="[
-              'px-2 py-0.5',
+              'px-2 py-px leading-4',
               column.align === 'center' ? 'text-center' : 'text-left',
               column.cellClass
             ]"

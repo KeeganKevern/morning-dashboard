@@ -4,10 +4,7 @@
     <div v-else-if="error && !weather" class="text-red-400 text-sm">{{ error }}</div>
     <div v-else-if="weather" class="flex flex-col gap-3 min-h-0">
 
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">{{ weather.location }}</span>
-        <span class="text-[0.65rem] text-zinc-500">{{ updatedLabel }}</span>
-      </div>
+      <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">{{ weather.location }}</span>
 
       <div class="flex items-center gap-4">
         <span class="text-4xl leading-none">{{ weather.current.icon }}</span>
@@ -49,6 +46,6 @@
 </template>
 
 <script setup>
-const { data: weather, loading, error: fetchError, updatedLabel } = usePolled('/api/weather', 30 * MINUTE);
+const { data: weather, loading, error: fetchError } = usePolled('/api/weather', 30 * MINUTE);
 const error = computed(() => (fetchError.value ? 'Failed to load weather' : null));
 </script>

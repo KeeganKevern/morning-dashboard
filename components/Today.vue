@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="flex-1 min-h-0 grid grid-cols-4 gap-4">
+    <div class="flex-1 min-h-0 grid grid-cols-2 grid-rows-[minmax(0,2fr)_minmax(0,3fr)] gap-x-5 gap-y-4">
       <!-- TimeTree -->
       <section class="min-h-0 flex flex-col">
         <h3 class="section-title">Calendar</h3>

@@ -1,5 +1,5 @@
-// Market summary for the bottom ticker: each index's latest close and its
-// % change over the last 3 months, from Yahoo Finance's (unofficial) chart API.
+// Market summary for the stocks panel: each index's latest close and its
+// % change over the last 7 days and 3 months, from Yahoo Finance's (unofficial) chart API.
 
 const SYMBOLS = [
   { id: 'sp500', label: 'S&P 500', symbol: '^GSPC' },
@@ -9,6 +9,7 @@ const SYMBOLS = [
 ];
 
 const YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart';
+const DAY = 24 * 60 * 60 * 1000;
 
 const fetchIndexSummary = async ({ id, label, symbol }) => {
   const res = await $fetch(`${YAHOO_BASE}/${encodeURIComponent(symbol)}`, {
@@ -18,20 +19,29 @@ const fetchIndexSummary = async ({ id, label, symbol }) => {
   const result = res?.chart?.result?.[0];
   if (!result) throw new Error(`No data returned for ${symbol}`);
 
-  const closes = (result.indicators?.quote?.[0]?.close || [])
-    .filter(c => typeof c === 'number' && !Number.isNaN(c));
-  if (closes.length < 2) throw new Error(`Not enough data for ${symbol}`);
+  // Pair each close with its date, dropping days with no close
+  const rawCloses = result.indicators?.quote?.[0]?.close || [];
+  const points = (result.timestamp || [])
+    .map((t, i) => ({ at: t * 1000, close: rawCloses[i] }))
+    .filter(p => typeof p.close === 'number' && !Number.isNaN(p.close));
+  if (points.length < 2) throw new Error(`Not enough data for ${symbol}`);
 
-  const first = closes[0];
-  const last = closes[closes.length - 1];
-  const timestamps = result.timestamp || [];
+  const first = points[0];
+  const last = points[points.length - 1];
+  // 7-day change: against the last close on or before a week before the latest
+  const weekAgo = [...points].reverse().find(p => p.at <= last.at - 7 * DAY) ?? first;
+  const pct = from => ((last.close - from.close) / from.close) * 100;
 
   return {
     id,
     label,
-    last,
-    change3mPct: ((last - first) / first) * 100,
-    from: timestamps[0] ? new Date(timestamps[0] * 1000).toISOString() : null
+    last: last.close,
+    change7dPct: pct(weekAgo),
+    change3mPct: pct(first),
+    // The closes each figure compares, so the panel can say exactly what it shows
+    closeAt: new Date(last.at).toISOString(),
+    weekAgoAt: new Date(weekAgo.at).toISOString(),
+    from: new Date(first.at).toISOString()
   };
 };
 
