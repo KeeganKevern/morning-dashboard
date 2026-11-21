@@ -55,44 +55,57 @@
       <section class="min-h-0 flex flex-col">
         <h3 class="section-title">Applications</h3>
         <p v-if="!jobs.data.value" class="note" :class="tone(jobs)">{{ status(jobs, 'Loading applications...') }}</p>
-        <template v-else>
-          <div class="flex gap-3 text-xs text-zinc-400 mb-1.5">
-            <span v-for="(n, s) in jobs.data.value.counts" :key="s"><span class="text-zinc-100 font-semibold">{{ n }}</span> {{ s.toLowerCase() }}</span>
+        <AutoScroll v-else>
+          <!-- Three groups; days are since the last note (review, chase) or since applying -->
+          <div v-for="g in jobGroups" :key="g.key" class="mb-2.5 last:mb-0">
+            <p class="text-[0.65rem] uppercase tracking-wider mb-1" :class="g.colour">{{ g.label }} · {{ g.items.length }}</p>
+            <p v-if="!g.items.length" class="note text-zinc-600">{{ g.empty }}</p>
+            <ul class="space-y-1">
+              <li v-for="(j, i) in g.items" :key="i" class="flex gap-2 text-sm leading-tight">
+                <span class="truncate text-zinc-100">{{ j.title }}<span class="text-zinc-500"> · {{ j.employer }}</span></span>
+                <span class="ml-auto shrink-0 text-xs tabular-nums" :class="g.colour">{{ j.days ?? '?' }}d</span>
+              </li>
+            </ul>
           </div>
-          <p class="text-[0.65rem] uppercase tracking-wider text-zinc-500 mb-1">To chase · {{ jobs.data.value.chase.length }}<span class="normal-case tracking-normal"> (oldest first)</span></p>
-          <p v-if="!jobs.data.value.chase.length" class="note text-zinc-500">Nothing to chase</p>
-          <ul class="space-y-1 overflow-hidden">
-            <li v-for="(c, i) in jobs.data.value.chase" :key="i" class="flex gap-2 text-sm leading-tight">
-              <span class="truncate text-zinc-100">{{ c.title }}<span class="text-zinc-500"> · {{ c.employer }}</span></span>
-              <span class="ml-auto shrink-0 text-xs text-amber-400 tabular-nums">{{ c.days ?? '?' }}d</span>
-            </li>
-          </ul>
-        </template>
+        </AutoScroll>
       </section>
 
       <!-- KP next steps -->
       <section class="min-h-0 flex flex-col">
         <h3 class="section-title">Project next steps</h3>
         <p v-if="!projects.data.value" class="note" :class="tone(projects)">{{ status(projects, 'Loading projects...') }}</p>
-        <template v-else>
-          <p v-if="!projects.data.value.projects.length" class="note text-zinc-500">No active next steps</p>
-          <ul class="space-y-1.5 overflow-hidden">
-            <li v-for="p in projects.data.value.projects" :key="p.project" class="text-sm leading-tight">
+        <p v-else-if="!projects.data.value.projects.length" class="note text-zinc-500">No active next steps</p>
+        <!-- Every active project, in full, scrolling slowly when they don't all fit -->
+        <AutoScroll v-else>
+          <ul class="space-y-2.5">
+            <li v-for="p in projects.data.value.projects" :key="p.project" class="text-sm leading-snug">
               <span class="block text-[0.65rem] font-semibold uppercase tracking-wider text-blue-400">{{ p.project }}</span>
-              <span class="text-zinc-100 line-clamp-2">{{ p.step }}</span>
+              <span class="text-zinc-100">{{ p.step }}</span>
             </li>
           </ul>
-        </template>
+        </AutoScroll>
       </section>
     </div>
   </div>
 </template>
 
 <script setup>
+import AutoScroll from './AutoScroll.vue';
+
 const events = usePolled('/api/timetree', 15 * MINUTE);
 const tasks = usePolled('/api/tasks', 5 * MINUTE);
 const jobs = usePolled('/api/jobs', 30 * MINUTE);
 const projects = usePolled('/api/projects', 60 * MINUTE);
+
+const jobGroups = computed(() => {
+  const j = jobs.data.value;
+  if (!j) return [];
+  return [
+    { key: 'review', label: 'To review', items: j.review, empty: 'Nothing to review', colour: 'text-sky-400' },
+    { key: 'chase', label: 'To chase', items: j.chase, empty: 'Nothing marked To chase', colour: 'text-amber-400' },
+    { key: 'applied', label: `Applied · last ${j.recentDays} days`, items: j.applied, empty: 'None recently', colour: 'text-emerald-400' }
+  ];
+});
 const warnings = usePolled('/api/warnings', 15 * MINUTE);
 
 const metWarnings = computed(() => warnings.data.value?.warnings ?? []);

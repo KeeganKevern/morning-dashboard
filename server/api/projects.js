@@ -1,9 +1,8 @@
 // Each KP project's suggested next step for the Today panel, read from the
 // "Progress Overview: <Project>" pages in Confluence (read-only; kk-update-docs
-// stays the only writer). Up to 5 active projects, freshest next step first.
+// stays the only writer). Every active project, freshest next step first.
 
 const PROJECTS_FOLDER = '15794197'; // KP > Projects
-const MAX_PROJECTS = 5;
 const WARN_DAYS = 14;
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -69,8 +68,7 @@ export default async () => {
     .map(p => ({ project: p.title.replace('Progress Overview: ', ''), ...parseNextStep(p.body?.storage?.value || '') }))
     // No next step, or one marked none or paused, means the project isn't active
     .filter(p => p.step && !/^(none set|paused)/i.test(p.step))
-    .sort((a, b) => (b.set || '').localeCompare(a.set || ''))
-    .slice(0, MAX_PROJECTS);
+    .sort((a, b) => (b.set || '').localeCompare(a.set || ''));
 
   return { projects, warning: tokenWarning(), updated: new Date().toISOString() };
 };
