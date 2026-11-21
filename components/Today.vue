@@ -25,14 +25,20 @@
         <h3 class="section-title">Calendar</h3>
         <p v-if="!events.data.value" class="note" :class="tone(events)">{{ status(events, 'Loading events...') }}</p>
         <template v-else>
-          <p v-if="events.data.value.stale" class="note text-amber-400">TimeTree export is out of date</p>
-          <p v-if="!events.data.value.events.length" class="note text-zinc-500">Nothing on today</p>
-          <ul class="space-y-1 overflow-hidden">
-            <li v-for="(e, i) in events.data.value.events" :key="i" class="flex gap-2 text-sm leading-tight">
-              <span class="shrink-0 w-14 whitespace-nowrap text-zinc-400 tabular-nums">{{ e.allDay ? 'All day' : e.time }}</span>
-              <span class="text-zinc-100 truncate">{{ e.title }}</span>
-            </li>
-          </ul>
+          <p v-if="events.data.value.stale" class="note text-amber-400 mb-1">TimeTree export is out of date</p>
+          <AutoScroll>
+            <!-- Today first, then tomorrow underneath -->
+            <div v-for="day in calendarDays" :key="day.label" class="mb-3 last:mb-0">
+              <p class="text-[0.65rem] uppercase tracking-wider mb-1" :class="day.colour">{{ day.label }}</p>
+              <p v-if="!day.events.length" class="note text-zinc-600">Nothing on {{ day.label.toLowerCase() }}</p>
+              <ul class="space-y-1">
+                <li v-for="(e, i) in day.events" :key="i" class="flex gap-2 text-sm leading-tight">
+                  <span class="shrink-0 w-14 whitespace-nowrap text-zinc-400 tabular-nums">{{ e.allDay ? 'All day' : e.time }}</span>
+                  <span class="truncate" :class="day.text">{{ e.title }}</span>
+                </li>
+              </ul>
+            </div>
+          </AutoScroll>
         </template>
       </section>
 
@@ -96,6 +102,16 @@ const events = usePolled('/api/timetree', 15 * MINUTE);
 const tasks = usePolled('/api/tasks', 5 * MINUTE);
 const jobs = usePolled('/api/jobs', 30 * MINUTE);
 const projects = usePolled('/api/projects', 60 * MINUTE);
+
+const calendarDays = computed(() => {
+  const d = events.data.value;
+  if (!d) return [];
+  return [
+    { label: 'Today', events: d.events, colour: 'text-zinc-300', text: 'text-zinc-100' },
+    // Tomorrow is a heads-up, so a little quieter than today
+    { label: 'Tomorrow', events: d.tomorrow ?? [], colour: 'text-zinc-500', text: 'text-zinc-300' }
+  ];
+});
 
 const jobGroups = computed(() => {
   const j = jobs.data.value;

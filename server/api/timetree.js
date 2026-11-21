@@ -108,13 +108,19 @@ export default async () => {
   }
 
   const today = ymd(new Date());
-  const events = parseEvents(ics)
-    .filter(ev => occursOn(ev, today))
+  // The UK date after today (noon avoids any clock-change edge)
+  const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + DAY).toISOString().slice(0, 10);
+
+  const all = parseEvents(ics);
+  // All-day events first, then by start time
+  const eventsOn = day => all
+    .filter(ev => occursOn(ev, day))
     .map(ev => ({ title: ev.title || '(no title)', allDay: ev.start.allDay, time: ev.start.allDay ? null : hm(ev.start.at) }))
     .sort((a, b) => (a.allDay === b.allDay ? (a.time || '').localeCompare(b.time || '') : a.allDay ? -1 : 1));
 
   return {
-    events,
+    events: eventsOn(today),
+    tomorrow: eventsOn(tomorrow),
     stale: Date.now() - info.mtimeMs > STALE_AFTER_MS, // the export timer has stopped
     exported: info.mtime.toISOString(),
     updated: new Date().toISOString()
