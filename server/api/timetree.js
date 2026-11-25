@@ -8,8 +8,14 @@ const DAY = 24 * 60 * 60 * 1000;
 const TZ = 'Europe/London';
 const WEEKDAYS = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
-const ymd = d => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d);
-const hm = d => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
+// One formatter each: making a new one per call took ~10 s per request on a Pi 3
+const YMD = new Intl.DateTimeFormat('en-CA', { timeZone: TZ });
+const HM = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
+const ymd = d => YMD.format(d);
+const hm = d => HM.format(d);
+
+// The answer only changes with a new export or a new day
+let cached = null; // { key, body }
 
 // Lines folded onto the next line start with a space or tab
 const unfold = ics => ics.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
@@ -100,14 +106,28 @@ export default async () => {
   const file = process.env.TIMETREE_ICS;
   if (!file) throw createError({ statusCode: 503, message: 'TimeTree not set up' });
 
-  let ics, info;
+  let info;
   try {
-    [ics, info] = await Promise.all([readFile(file, 'utf8'), stat(file)]);
+    info = await stat(file);
   } catch {
     throw createError({ statusCode: 503, message: 'TimeTree unavailable' });
   }
 
   const today = ymd(new Date());
+  const status = () => ({
+    stale: Date.now() - info.mtimeMs > STALE_AFTER_MS, // the export timer has stopped
+    exported: info.mtime.toISOString(),
+    updated: new Date().toISOString()
+  });
+  const key = `${info.mtimeMs}|${today}`;
+  if (cached?.key === key) return { ...cached.body, ...status() };
+
+  let ics;
+  try {
+    ics = await readFile(file, 'utf8');
+  } catch {
+    throw createError({ statusCode: 503, message: 'TimeTree unavailable' });
+  }
   // The UK date after today (noon avoids any clock-change edge)
   const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + DAY).toISOString().slice(0, 10);
 
@@ -118,11 +138,7 @@ export default async () => {
     .map(ev => ({ title: ev.title || '(no title)', allDay: ev.start.allDay, time: ev.start.allDay ? null : hm(ev.start.at) }))
     .sort((a, b) => (a.allDay === b.allDay ? (a.time || '').localeCompare(b.time || '') : a.allDay ? -1 : 1));
 
-  return {
-    events: eventsOn(today),
-    tomorrow: eventsOn(tomorrow),
-    stale: Date.now() - info.mtimeMs > STALE_AFTER_MS, // the export timer has stopped
-    exported: info.mtime.toISOString(),
-    updated: new Date().toISOString()
-  };
+  const body = { events: eventsOn(today), tomorrow: eventsOn(tomorrow) };
+  cached = { key, body };
+  return { ...body, ...status() };
 };

@@ -1,0 +1,11 @@
+[Unit]
+Description=Export the shared TimeTree calendar for the Morning Dashboard
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/home/pi/morning-dashboard
+ExecStart=/usr/bin/node /home/pi/morning-dashboard/scripts/timetree-sync.mjs
+TimeoutStartSec=6min

@@ -1,0 +1,13 @@
+[Unit]
+Description=Export the TimeTree calendar soon after boot and once a day
+
+[Timer]
+# The Pi runs on demand, so export shortly after every boot...
+OnBootSec=1min
+# ...and again each morning if it is left on
+OnCalendar=*-*-* 05:00
+# A failed export is retried by the next run; the panel flags data over 24 h old
+RandomizedDelaySec=2min
+
+[Install]
+WantedBy=timers.target

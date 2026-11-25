@@ -8,12 +8,14 @@
 // and TIMETREE_ICS.
 
 import { fileURLToPath } from 'node:url';
-import dotenv from 'dotenv';
-
-// Read the project's .env wherever the script is run from
-dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)) });
 import { spawnSync } from 'node:child_process';
-import { renameSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, renameSync, rmSync, statSync } from 'node:fs';
+import { dirname } from 'node:path';
+
+// Read the project's .env wherever the script is run from (Node's own loader,
+// so the script also runs on the Pi, where only the built app is deployed)
+const envFile = fileURLToPath(new URL('../.env', import.meta.url));
+if (existsSync(envFile)) process.loadEnvFile(envFile);
 
 const { TIMETREE_EMAIL, TIMETREE_PASSWORD, TIMETREE_CALENDAR_CODE, TIMETREE_ICS } = process.env;
 const missing = Object.entries({ TIMETREE_EMAIL, TIMETREE_PASSWORD, TIMETREE_CALENDAR_CODE, TIMETREE_ICS })
@@ -27,6 +29,7 @@ if (missing.length) {
 // Write to a temporary file, then swap it in, so a failed export never
 // replaces the last good calendar with a broken one
 const tmp = `${TIMETREE_ICS}.tmp`;
+mkdirSync(dirname(TIMETREE_ICS), { recursive: true });
 // Run as a Python module so it works without the Scripts folder on PATH
 const python = process.env.TIMETREE_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 const run = spawnSync(python, ['-m', 'timetree_exporter', '-o', tmp, '-c', TIMETREE_CALENDAR_CODE, '-e', TIMETREE_EMAIL], {
