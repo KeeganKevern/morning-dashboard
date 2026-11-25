@@ -1,49 +1,54 @@
 <template>
   <div class="bg-zinc-950 text-white h-screen flex flex-col overflow-hidden">
-    <header class="flex items-center justify-center px-4 py-2 border-b border-zinc-800">
+    <header class="relative flex items-center justify-center px-4 py-2 border-b border-zinc-800">
+      <!-- One status for the whole screen: the latest refresh, and any source failing -->
+      <span class="absolute left-4 text-[0.65rem] text-zinc-500">
+        <template v-if="status.time">Updated {{ status.time }}</template>
+        <span v-if="status.failing" class="text-amber-400"> · {{ status.failing }} retrying</span>
+      </span>
       <span class="text-sm font-medium text-zinc-400 tracking-widest uppercase">{{ titleDate }}</span>
     </header>
 
-    <section class="flex-1 grid grid-cols-6 grid-rows-[1fr_1fr_auto] gap-3 p-3 min-h-0">
-      <div class="col-start-1 col-span-2 row-start-1 h-full"><Weather /></div>
-      <div class="col-start-1 col-span-2 row-start-2 h-full"><Stocks /></div>
-      <div class="col-start-3 col-span-2 row-start-1 h-full"><Photos /></div>
-      <div class="col-start-3 col-span-2 row-start-2 h-full"><News /></div>
-      <div class="col-start-1 col-span-4 row-start-3"><Tasks /></div>
+    <!-- Act-first: what to act on gets the centre; glanceable things sit either side -->
+    <section class="flex-1 grid grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,1fr)] gap-3 p-3 pb-0 min-h-0">
+      <!-- Left: the photo filling the space above the weather -->
+      <div class="flex flex-col gap-3 min-h-0">
+        <div class="flex-1 min-h-0"><Photos /></div>
+        <div class="shrink-0"><Weather /></div>
+      </div>
 
-      <template v-if="footData">
-        <div class="col-start-5 col-span-2 row-span-3 h-full flex flex-col gap-3">
-          <FootballNextMatch :next-match="footData.liverpool?.nextMatch" />
+      <!-- Centre: the day ahead -->
+      <div class="min-h-0"><Today /></div>
+
+      <!-- Right: football, then the markets filling the rest -->
+      <div class="flex flex-col gap-3 min-h-0">
+        <div v-if="footData" class="shrink-0 flex flex-col gap-3">
+          <FootballRotator :data="footData" />
           <FootballTable :table="footData.table ?? []" />
-          <FootballLastMatch :last-match="footData.liverpool?.lastMatch" />
-          <span class="text-[0.65rem] text-zinc-500 text-right">{{ footballUpdated }}</span>
         </div>
-      </template>
-      <template v-else>
-        <div class="col-start-5 col-span-2 row-span-3 h-full flex justify-center items-center text-zinc-500 text-sm">
+        <div v-else class="shrink-0 py-8 flex justify-center items-center text-zinc-500 text-sm">
           {{ footballLoading ? 'Loading football data...' : 'Failed to load football data' }}
         </div>
-      </template>
+        <div class="flex-1 min-h-0"><Stocks /></div>
+      </div>
     </section>
+
+    <footer class="p-3"><Ticker /></footer>
   </div>
 </template>
 
 <script setup>
 import Weather from "../components/Weather.vue";
-import Stocks from "~~/components/Stocks.vue";
-import News from "~~/components/News.vue";
-import FootballLastMatch from "~~/components/FootballLastMatch.vue";
-import FootballNextMatch from "~~/components/FootballNextMatch.vue";
+import Ticker from "~~/components/Ticker.vue";
+import FootballRotator from "~~/components/FootballRotator.vue";
 import FootballTable from "~~/components/FootballTable.vue";
 import Photos from "~~/components/Photos.vue";
-import Tasks from "~~/components/Tasks.vue";
+import Today from "~~/components/Today.vue";
+import Stocks from "~~/components/Stocks.vue";
 
 const titleDate = ref(null);
-const {
-  data: footData,
-  loading: footballLoading,
-  updatedLabel: footballUpdated
-} = usePolled("/api/football", 60 * MINUTE);
+const { data: footData, loading: footballLoading } = usePolled("/api/football", 60 * MINUTE);
+const status = useRefreshStatus();
 
 // Keep the header date right if the dashboard is left on past midnight
 let dateTimer = null;

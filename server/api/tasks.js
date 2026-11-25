@@ -1,53 +1,43 @@
-const TOKEN_URL = 'https://oauth2.googleapis.com/token';
-const TASKS_URL = 'https://www.googleapis.com/tasks/v1/lists';
+// Google Tasks for the Today panel: tasks due today or overdue on any list,
+// then undated tasks from the default list.
 
-const getAccessToken = async (clientId, clientSecret, refreshToken) => {
-  const res = await $fetch(TOKEN_URL, {
-    method: 'POST',
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token'
-    })
+const TASKS_BASE = 'https://tasks.googleapis.com/tasks/v1';
+
+const openTasks = async listId => {
+  const res = await googleGet(`${TASKS_BASE}/lists/${encodeURIComponent(listId)}/tasks`, {
+    showCompleted: false,
+    showHidden: false,
+    maxResults: 100
   });
-
-  return res.access_token;
+  return (res.items || []).filter(t => t.status !== 'completed' && t.title?.trim());
 };
 
-export default async (_event) => {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-  const taskListId = process.env.GOOGLE_TASKLIST_ID || '@default';
-
-  if (!clientId || !clientSecret || !refreshToken) {
-    throw createError({ statusCode: 500, message: 'Google Tasks credentials not set' });
-  }
-
-  let accessToken;
+export default async () => {
+  let lists;
   try {
-    accessToken = await getAccessToken(clientId, clientSecret, refreshToken);
+    lists = (await googleGet(`${TASKS_BASE}/users/@me/lists`, { maxResults: 100 })).items || [];
   } catch (err) {
-    console.error('Google token refresh error:', err);
-    throw createError({ statusCode: 502, message: 'Failed to refresh Google access token' });
-  }
-
-  let data;
-  try {
-    data = await $fetch(`${TASKS_URL}/${encodeURIComponent(taskListId)}/tasks`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      params: { showCompleted: false, showHidden: false }
-    });
-  } catch (err) {
-    console.error('Google Tasks fetch error:', err);
+    if (err.statusCode && !err.response) throw err; // sign-in problems already explained
+    console.error('Google Tasks lists error:', err.message);
     throw createError({ statusCode: 502, message: 'Failed to reach Google Tasks' });
   }
 
-  const tasks = (data.items || [])
-    .filter(t => t.status !== 'completed')
-    .map(t => ({ id: t.id, title: t.title, notes: t.notes ?? null, due: t.due ?? null }))
-    .sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'));
+  const today = londonToday();
+  const defaultId = lists[0]?.id; // the first list is the default one
+  const perList = await Promise.all(lists.map(async l => ({ list: l, tasks: await openTasks(l.id) })));
 
-  return { tasks, updated: new Date().toISOString() };
+  const due = [];
+  const undated = [];
+  for (const { list, tasks } of perList) {
+    for (const t of tasks) {
+      // Tasks stores due dates as midnight UTC, so the date part is the day
+      const dueDay = t.due?.slice(0, 10);
+      const item = { id: t.id, title: t.title.trim(), list: list.title, due: dueDay ?? null, overdue: !!dueDay && dueDay < today };
+      if (dueDay && dueDay <= today) due.push(item);
+      else if (!dueDay && list.id === defaultId) undated.push(item);
+    }
+  }
+  due.sort((a, b) => a.due.localeCompare(b.due));
+
+  return { tasks: [...due, ...undated], updated: new Date().toISOString() };
 };

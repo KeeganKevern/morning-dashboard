@@ -1,153 +1,99 @@
 <template>
-  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-white w-full">
-    <div v-if="loading" class="text-zinc-500 text-sm">Loading markets...</div>
-    <div v-else-if="error && !data" class="text-red-400 text-sm">{{ error }}</div>
-    <div v-else-if="indices.length" class="flex items-center justify-between mb-2">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl text-white w-full h-full p-2.5 flex flex-col min-h-0">
+    <!-- Which change is showing: the active period is highlighted -->
+    <div class="flex items-center justify-between mb-2">
       <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">Markets</span>
-      <span class="text-[0.65rem] text-zinc-500">{{ updatedLabel }}</span>
+      <div class="flex rounded-md border border-zinc-700 overflow-hidden text-[0.65rem] font-semibold uppercase tracking-wider">
+        <span
+          v-for="p in PERIODS"
+          :key="p.key"
+          class="px-2 py-0.5 transition-colors duration-500"
+          :class="p.key === period.key ? 'bg-zinc-200 text-zinc-900' : 'text-zinc-500'"
+        >{{ p.short }}</span>
+      </div>
     </div>
-    <div v-if="indices.length" class="grid grid-cols-2 gap-2">
-      <div
-        v-for="index in indices"
-        :key="index.id"
-        class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col gap-1"
-      >
-        <div class="flex justify-between items-baseline text-xs">
-          <div class="flex flex-col">
-            <span class="font-medium text-zinc-50">{{ index.label }}</span>
-            <span v-if="index.points.length" class="text-[0.65rem] text-zinc-500">
-              {{ formatShortDate(index.firstDate) }} – {{ formatShortDate(index.lastDate) }}
-            </span>
-          </div>
-          <span
-            v-if="index.points.length"
-            class="text-[0.75rem] font-semibold"
-            :class="changeClass(index.points)"
-          >
-            {{ formatChange(index.points) }}
-          </span>
-        </div>
 
-        <div class="h-12 w-full">
-          <svg
-            v-if="index.points.length"
-            :viewBox="`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`"
-            class="w-full h-full"
-          >
-            <g v-for="tick in buildTicks(index.points)" :key="tick.x">
-              <line
-                :x1="tick.x"
-                :x2="tick.x"
-                y1="0"
-                :y2="VIEWBOX_HEIGHT"
-                class="stroke-zinc-700"
-                stroke-width="0.3"
-                stroke-linecap="round"
-                opacity="0.6"
-              />
-              <text
-                :x="tick.x"
-                :y="VIEWBOX_HEIGHT - 1"
-                font-size="3"
-                text-anchor="middle"
-                class="fill-zinc-500"
-              >
-                {{ tick.label }}
-              </text>
-            </g>
-            <polyline
-              :points="buildPolyline(index.points)"
-              fill="none"
-              class="stroke-blue-400"
-              stroke-width="1.5"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            />
-          </svg>
-          <div v-else class="text-[0.65rem] text-zinc-500">No data</div>
-        </div>
+    <div v-if="!indices.length" class="flex-1 flex items-center justify-center text-sm" :class="loading ? 'text-zinc-500' : 'text-red-400'">
+      {{ loading ? 'Loading markets...' : 'Markets unavailable' }}
+    </div>
+
+    <!-- 2x2: each index with its latest close and the change over the current period -->
+    <div v-else class="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-2">
+      <!-- Each card is a size container, so its text scales to the card on any screen -->
+      <div
+        v-for="i in indices"
+        :key="i.id"
+        class="stock-card min-h-0 min-w-0 overflow-hidden bg-zinc-950 border border-zinc-800 rounded-lg flex flex-col items-center justify-center text-center leading-tight"
+      >
+        <span class="stock-name font-semibold text-zinc-200 whitespace-nowrap">{{ i.label }}</span>
+        <span class="stock-last text-zinc-400 tabular-nums whitespace-nowrap">{{ formatNumber(i.last) }}</span>
+        <Transition name="stocks-fade" mode="out-in">
+          <div :key="period.key" class="flex flex-col items-center">
+            <span
+              class="stock-change font-bold tabular-nums whitespace-nowrap"
+              :class="i[period.field] >= 0 ? 'text-emerald-400' : 'text-red-400'"
+            >
+              {{ i[period.field] >= 0 ? '▲' : '▼' }} {{ Math.abs(i[period.field]).toFixed(1) }}%
+            </span>
+            <!-- Exactly which closes the figure compares -->
+            <span class="stock-since text-zinc-500 whitespace-nowrap">since {{ shortDate(i[period.sinceField]) }} · close {{ shortDate(i.closeAt) }}</span>
+          </div>
+        </Transition>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const { data, loading, error: fetchError, updatedLabel } = usePolled('/api/stocks', 60 * MINUTE);
+const FLICK_MS = 10 * 1000;
+const PERIODS = [
+  { key: '7d', short: '7 days', field: 'change7dPct', sinceField: 'weekAgoAt' },
+  { key: '3m', short: '3 months', field: 'change3mPct', sinceField: 'from' }
+];
+
+const { data, loading } = usePolled('/api/stocks', 60 * MINUTE);
 const indices = computed(() => data.value?.indices ?? []);
-const error = computed(() => (fetchError.value ? 'Failed to load markets' : null));
 
-const VIEWBOX_WIDTH = 80;
-const VIEWBOX_HEIGHT = 30;
+// Flick between the 7-day and 3-month change
+const periodIndex = ref(0);
+const period = computed(() => PERIODS[periodIndex.value]);
 
-const formatShortDate = (iso) => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-};
+let timer = null;
+onMounted(() => { timer = setInterval(() => (periodIndex.value = (periodIndex.value + 1) % PERIODS.length), FLICK_MS); });
+onBeforeUnmount(() => clearInterval(timer));
 
-const buildTicks = (points) => {
-  if (!points.length) return [];
-
-  const count = points.length;
-  const stepX = count > 1 ? VIEWBOX_WIDTH / (count - 1) : 0;
-
-  const rawIndexes = [0, Math.floor(count / 2), count - 1];
-  const indexes = [...new Set(rawIndexes)].filter(i => i >= 0 && i < count);
-
-  return indexes.map(i => ({
-    x: +(i * stepX).toFixed(2),
-    label: formatShortDate(points[i].date)
-  }));
-};
-
-const buildPolyline = (points) => {
-  if (!points.length) return '';
-
-  const closes = points.map(p => p.close);
-  const min = Math.min(...closes);
-  const max = Math.max(...closes);
-
-  const span = Math.max(max - min, 1e-6);
-  const stepX = points.length > 1 ? VIEWBOX_WIDTH / (points.length - 1) : 0;
-
-  return points
-    .map((p, i) => {
-      const x = i * stepX;
-      const norm = (p.close - min) / span;
-      const y = VIEWBOX_HEIGHT - norm * VIEWBOX_HEIGHT;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(' ');
-};
-
-const getChange = (points) => {
-  if (!points || points.length < 2) return null;
-
-  const last = points[points.length - 1].close;
-  const prev = points[points.length - 2].close;
-
-  if (typeof last !== 'number' || typeof prev !== 'number' || prev === 0) {
-    return null;
-  }
-
-  const diff = last - prev;
-  const pct = (diff / prev) * 100;
-
-  return { diff, pct };
-};
-
-const formatChange = (points) => {
-  const c = getChange(points);
-  if (!c) return '';
-
-  const sign = c.diff >= 0 ? '+' : '';
-  return `${sign}${c.diff.toFixed(2)} (${sign}${c.pct.toFixed(2)}%)`;
-};
-
-const changeClass = (points) => {
-  const c = getChange(points);
-  if (!c) return 'text-slate-200';
-  return c.diff >= 0 ? 'text-emerald-400' : 'text-red-400';
-};
+const formatNumber = n => n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// Market dates are the trading day, so read them in UTC: "13 Nov"
+const shortDate = iso => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '?');
 </script>
 
+<style>
+/* Sizes follow the card's width and height (container units), within limits.
+   Padding stays fixed: container units on the card itself would measure the screen. */
+.stock-card {
+  container-type: size;
+  padding: 0.375rem 0.5rem;
+  gap: 0.125rem;
+}
+.stock-name {
+  font-size: clamp(0.65rem, min(8cqw, 13cqh), 1.15rem);
+}
+.stock-last {
+  font-size: clamp(0.6rem, min(7.5cqw, 12cqh), 1.1rem);
+}
+.stock-change {
+  font-size: clamp(0.8rem, min(14cqw, 22cqh), 2.5rem);
+}
+.stock-since {
+  font-size: clamp(0.55rem, min(5.5cqw, 9cqh), 0.8rem);
+}
+
+.stocks-fade-enter-active,
+.stocks-fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+.stocks-fade-enter-from,
+.stocks-fade-leave-to {
+  opacity: 0;
+}
+</style>
