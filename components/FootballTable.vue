@@ -47,7 +47,7 @@
 <script setup>
 const tableColumns = [
   { key: 'position', label: 'Pos', align: 'left', headerClass: 'w-10', cellClass: 'text-zinc-400' },
-  { key: 'team', label: 'Team', align: 'left', cellClass: 'font-medium truncate text-zinc-100' },
+  { key: 'displayName', label: 'Team', align: 'left', cellClass: 'font-medium truncate text-zinc-100' },
   { key: 'played', label: 'P', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
   { key: 'won', label: 'W', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
   { key: 'drawn', label: 'D', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },

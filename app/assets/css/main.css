@@ -4,6 +4,12 @@
 @source "../**/*.vue";
 @source "../../../components/**/*.{vue,js,ts}";
 
+/* Base size for the whole page (text and spacing are in rem): 20px suits a
+   65" TV showing the Pi's 1920x1080 from a few metres away */
+html {
+  font-size: 20px;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #09090b;

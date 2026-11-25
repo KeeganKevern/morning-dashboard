@@ -72,7 +72,7 @@ const shortDate = iso => (iso ? new Date(iso).toLocaleDateString('en-GB', { day:
    Padding stays fixed: container units on the card itself would measure the screen. */
 .stock-card {
   container-type: size;
-  padding: 0.375rem 0.5rem;
+  padding: 0.375rem 0.25rem;
   gap: 0.125rem;
 }
 .stock-name {
