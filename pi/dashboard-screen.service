@@ -1,0 +1,7 @@
+[Unit]
+Description=Morning Dashboard screen schedule (TV on and off)
+
+[Service]
+Type=oneshot
+User=pi
+ExecStart=/bin/bash /home/pi/screen-schedule.sh

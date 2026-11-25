@@ -1,0 +1,6 @@
+[Unit]
+Description=Morning Dashboard daily restart
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl --no-block reboot

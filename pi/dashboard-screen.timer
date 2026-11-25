@@ -1,0 +1,10 @@
+[Unit]
+Description=Check the dashboard screen schedule every minute
+
+[Timer]
+OnBootSec=30s
+OnCalendar=*-*-* *:*:00
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Restart the Pi each morning, before the first screen window
+# A fresh start: clears memory, re-reads .env, picks the day's theme and runs
+# the boot-time TimeTree export. install.sh sets the time from DASHBOARD_REBOOT_AT.
+
+[Timer]
+OnCalendar=*-*-* 04:45:00
+
+[Install]
+WantedBy=timers.target
