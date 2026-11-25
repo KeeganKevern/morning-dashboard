@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-zinc-900 border border-zinc-800 rounded-xl text-white w-full h-full p-3 flex flex-col min-h-0">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-50 w-full h-full p-3 flex flex-col min-h-0">
     <div class="flex items-baseline justify-between mb-2">
-      <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">Today</span>
+      <span class="title-trim text-xs font-semibold tracking-widest uppercase text-zinc-400">Today</span>
       <span v-if="projects.data.value?.warning" class="text-[0.65rem] font-semibold text-amber-400">{{ projects.data.value.warning }}</span>
     </div>
 
@@ -22,19 +22,19 @@
     <div class="flex-1 min-h-0 grid grid-cols-2 grid-rows-[minmax(0,2fr)_minmax(0,3fr)] gap-x-5 gap-y-4">
       <!-- TimeTree -->
       <section class="min-h-0 flex flex-col">
-        <h3 class="section-title">Calendar</h3>
+        <h3 class="section-title section-title-main">Calendar</h3>
         <p v-if="!events.data.value" class="note" :class="tone(events)">{{ status(events, 'Loading events...') }}</p>
         <template v-else>
           <p v-if="events.data.value.stale" class="note text-amber-400 mb-1">TimeTree export is out of date</p>
           <AutoScroll>
             <!-- Today first, then tomorrow underneath -->
             <div v-for="day in calendarDays" :key="day.label" class="mb-3 last:mb-0">
-              <p class="text-[0.65rem] uppercase tracking-wider mb-1" :class="day.colour">{{ day.label }}</p>
+              <p class="text-xs uppercase tracking-wider mb-1.5" :class="day.colour">{{ day.label }}</p>
               <p v-if="!day.events.length" class="note text-zinc-600">Nothing on {{ day.label.toLowerCase() }}</p>
-              <ul class="space-y-1">
-                <li v-for="(e, i) in day.events" :key="i" class="flex gap-2 text-sm leading-tight">
-                  <span class="shrink-0 w-14 whitespace-nowrap text-zinc-400 tabular-nums">{{ e.allDay ? 'All day' : e.time }}</span>
-                  <span class="truncate" :class="day.text">{{ e.title }}</span>
+              <ul class="space-y-1.5">
+                <li v-for="(e, i) in day.events" :key="i" class="flex gap-3 text-lg leading-tight">
+                  <span class="shrink-0 w-[4.5rem] whitespace-nowrap text-zinc-400 tabular-nums">{{ e.allDay ? 'All day' : e.time }}</span>
+                  <span class="min-w-0 break-words" :class="day.text">{{ e.title }}</span>
                 </li>
               </ul>
             </div>
@@ -44,14 +44,14 @@
 
       <!-- Google Tasks -->
       <section class="min-h-0 flex flex-col">
-        <h3 class="section-title">Tasks</h3>
+        <h3 class="section-title section-title-main">Tasks</h3>
         <p v-if="!tasks.data.value" class="note" :class="tone(tasks)">{{ status(tasks, 'Loading tasks...') }}</p>
         <template v-else>
           <p v-if="!tasks.data.value.tasks.length" class="note text-zinc-500">Nothing due</p>
-          <ul class="space-y-1 overflow-hidden">
-            <li v-for="t in tasks.data.value.tasks" :key="t.id" class="flex gap-2 text-sm leading-tight">
-              <span class="shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full" :class="t.overdue ? 'bg-red-400' : t.due ? 'bg-amber-400' : 'bg-zinc-600'" />
-              <span class="truncate" :class="t.overdue ? 'text-red-300' : 'text-zinc-100'">{{ t.title }}</span>
+          <ul class="space-y-1.5 overflow-hidden">
+            <li v-for="t in tasks.data.value.tasks" :key="t.id" class="flex gap-2.5 text-lg leading-tight">
+              <span class="shrink-0 w-2 h-2 mt-2 rounded-full" :class="t.overdue ? 'bg-red-400' : t.due ? 'bg-amber-400' : 'bg-zinc-600'" />
+              <span class="min-w-0 break-words" :class="t.overdue ? 'text-red-300' : 'text-zinc-100'">{{ t.title }}</span>
             </li>
           </ul>
         </template>
@@ -82,7 +82,7 @@
         <p v-if="!projects.data.value" class="note" :class="tone(projects)">{{ status(projects, 'Loading projects...') }}</p>
         <p v-else-if="!projects.data.value.projects.length" class="note text-zinc-500">No active next steps</p>
         <!-- Every active project, in full, scrolling slowly when they don't all fit -->
-        <AutoScroll v-else>
+        <AutoScroll v-else :speed="9">
           <ul class="space-y-2.5">
             <li v-for="p in projects.data.value.projects" :key="p.project" class="text-sm leading-snug">
               <span class="block text-[0.65rem] font-semibold uppercase tracking-wider text-blue-400">{{ p.project }}</span>
@@ -146,8 +146,14 @@ const tone = source => (source.loading.value || notSetUp(source) ? 'text-zinc-50
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(161 161 170);
+  color: var(--title, var(--color-zinc-400));
   margin-bottom: 0.375rem;
+}
+/* Calendar and Tasks lead the panel */
+.section-title-main {
+  font-size: 0.75rem;
+  color: var(--title-main, var(--color-zinc-300));
+  margin-bottom: 0.5rem;
 }
 .note {
   font-size: 0.75rem;

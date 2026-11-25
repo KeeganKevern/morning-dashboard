@@ -1,7 +1,7 @@
 <template>
   <div v-if="cards.length" class="shrink-0 flex flex-col gap-1">
     <div class="flex items-center justify-between px-1">
-      <span class="text-[0.6rem] font-semibold tracking-widest uppercase text-zinc-400">{{ current.label }}</span>
+      <span class="title-trim text-[0.6rem] font-semibold tracking-widest uppercase text-zinc-400">{{ current.label }}</span>
       <div v-if="cards.length > 1" class="flex gap-1">
         <span
           v-for="(card, i) in cards"

@@ -12,6 +12,96 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #09090b;
-  color: #fafafa;
+  background-color: var(--color-zinc-950);
+  color: var(--color-zinc-50);
+}
+
+/* ---------- Colour themes ----------
+   Chosen by DASHBOARD_THEME in .env (server/plugins/theme.js puts it on <html>).
+   The components are written in Tailwind's zinc greys plus a few accents; each
+   theme redefines those shades, so the components need no theme logic.
+   Roles of the greys: 950 page and inner cards, 900 panels, 800 borders,
+   700-600 faint marks, 500-400 muted text, 300-50 main text.
+   Extra variables: --title (panel and section titles), --title-main (Calendar
+   and Tasks titles), --highlight-row (Liverpool's table row), --panel-border and
+   --panel-border-width (the widget cards' outline). */
+
+.title-trim {
+  color: var(--title, var(--color-zinc-400));
+}
+.row-highlight {
+  background-color: var(--highlight-row, var(--color-red-800));
+}
+/* The widget cards (not the cards inside them, nor the red football cards) */
+.bg-zinc-900.border.rounded-xl {
+  border-width: var(--panel-border-width, 1px);
+  border-color: var(--panel-border, var(--color-zinc-800));
+}
+
+/* Standard - Dark is Tailwind's own zinc: nothing to redefine */
+
+[data-theme="green-trim-dark"] {
+  --color-zinc-800: #1e4430;
+  --panel-border: #15803d;
+  --panel-border-width: 2px;
+  --title: #4ade80;
+  --title-main: #86efac;
+  --color-blue-400: #4ade80;
+}
+
+[data-theme="ocean-dark"] {
+  --color-zinc-950: #04101c;
+  --color-zinc-900: #0a1c2f;
+  --color-zinc-800: #173452;
+  --color-zinc-700: #224a70;
+  --color-zinc-600: #3d6890;
+  --color-zinc-500: #6e93b6;
+  --color-zinc-400: #97b7d5;
+  --color-zinc-300: #bfd5e9;
+  --color-zinc-200: #dae8f5;
+  --color-zinc-100: #edf5fc;
+  --color-zinc-50: #f7fbff;
+  --title: #22d3ee;
+  --title-main: #67e8f9;
+  --color-blue-400: #2dd4bf;
+}
+
+[data-theme="sunset-dark"] {
+  --color-zinc-950: #170912;
+  --color-zinc-900: #28101f;
+  --color-zinc-800: #4a2140;
+  --color-zinc-700: #632d53;
+  --color-zinc-600: #82476b;
+  --color-zinc-500: #a87193;
+  --color-zinc-400: #d0a0bb;
+  --color-zinc-300: #e7c5d6;
+  --color-zinc-200: #f3dee8;
+  --color-zinc-100: #fbeff4;
+  --color-zinc-50: #fff7fa;
+  --title: #fbbf24;
+  --title-main: #fcd34d;
+  --color-blue-400: #fb7185;
+}
+
+/* Burnt orange around Ford's Tangerine Scream (paint code LP, a pearl tri-coat
+   with no official hex): #fe6e14, the closest published Ford tangerine swatch.
+   Dark burnt-orange panels so text stays readable and the OLED isn't lit bright */
+[data-theme="burnt-orange-dark"] {
+  --color-zinc-950: #1c0b02;
+  --color-zinc-900: #351405;
+  --color-zinc-800: #5e2408;
+  --color-zinc-700: #7d330d;
+  --color-zinc-600: #a04a18;
+  --color-zinc-500: #c9753f;
+  --color-zinc-400: #eaa577;
+  --color-zinc-300: #f6c9a8;
+  --color-zinc-200: #fbe2cf;
+  --color-zinc-100: #fef0e4;
+  --color-zinc-50: #fff8f2;
+  --panel-border: #fe6e14;
+  --panel-border-width: 2px;
+  --title: #fe6e14;
+  --title-main: #ff8f45;
+  --color-blue-400: #ffa366;
+  --color-amber-400: #fcd34d;
 }

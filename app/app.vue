@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-zinc-950 text-white h-screen flex flex-col overflow-hidden">
+  <div class="bg-zinc-950 text-zinc-50 h-screen flex flex-col overflow-hidden">
     <header class="relative flex items-center justify-center px-4 py-2 border-b border-zinc-800">
       <!-- One status for the whole screen: the latest refresh, and any source failing -->
       <span class="absolute left-4 text-[0.65rem] text-zinc-500">
