@@ -82,6 +82,7 @@ onBeforeUnmount(() => clearInterval(timer));
 .table-slide-enter-active,
 .table-slide-leave-active {
   transition: transform 0.4s ease, opacity 0.4s ease;
+  will-change: transform, opacity;
 }
 .table-slide-enter-from {
   transform: translateX(100%);

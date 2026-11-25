@@ -59,6 +59,6 @@ if ($LASTEXITCODE) { throw 'Copy to the Pi failed' }
 
 $flag = if ($NoReboot) { '--no-reboot' } else { '' }
 ssh -o BatchMode=yes $PiHost "rm -rf /tmp/mdd && mkdir /tmp/mdd && tar -xzf /tmp/morning-dashboard-deploy.tgz -C /tmp/mdd && bash /tmp/mdd/pi/install.sh /tmp/mdd $flag"
-if ($LASTEXITCODE -and $LASTEXITCODE -ne 255) { throw "Install on the Pi failed ($LASTEXITCODE)" }
+if ($LASTEXITCODE) { throw "Install on the Pi failed ($LASTEXITCODE)" }
 
 Write-Host 'Deployed.'

@@ -51,12 +51,16 @@ else
   sudo systemctl mask $NO_UPDATES
 fi
 
+# The weather icons are emoji: without this font they show as empty boxes
+fc-list : family | grep -i 'emoji' >/dev/null || echo "WARNING: no emoji font; turn the overlay off and run: sudo apt-get install fonts-noto-color-emoji"
+
 echo "Installed $(cat "$ROOT/$APP/.deployed" 2>/dev/null || echo 'build')"
 
 if [ "$REBOOT" = yes ]; then
-  echo "Rebooting the Pi"
+  echo "Rebooting the Pi in 3 seconds"
   sync
-  sudo systemctl reboot
+  # Scheduled, so this SSH session ends cleanly before the reboot cuts it
+  sudo systemd-run --quiet --on-active=3 systemctl reboot
 elif [ -z "$ROOT" ]; then
   sudo systemctl restart dashboard.service
   echo "Server restarted (browser left as it was)"

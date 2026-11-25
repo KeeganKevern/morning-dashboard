@@ -69,6 +69,8 @@ onBeforeUnmount(() => { observer?.disconnect(); clearInterval(clock); });
 
 <style>
 .ticker-track {
+  /* Own compositor layer, so other widgets repainting doesn't re-raster it */
+  will-change: transform;
   animation-name: ticker-scroll;
   animation-timing-function: linear;
   animation-iteration-count: infinite;

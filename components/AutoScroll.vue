@@ -50,6 +50,7 @@ onBeforeUnmount(() => observer?.disconnect());
 
 <style>
 .auto-scroll-track {
+  will-change: transform;
   animation-name: auto-scroll-up;
   animation-timing-function: linear;
   animation-iteration-count: infinite;

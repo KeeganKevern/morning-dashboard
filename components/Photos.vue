@@ -9,7 +9,8 @@
       <img
         v-if="current"
         :key="current"
-        :src="`/api/photos/${encodeURIComponent(current)}`"
+        :src="photoUrl(current)"
+        decoding="async"
         alt=""
         class="absolute inset-0 w-full h-full object-contain"
       />
@@ -25,12 +26,29 @@ const { data, error, loading } = usePolled('/api/photos', 60 * MINUTE);
 
 const current = ref(null);
 
-// A random photo, never the same one twice in a row
-const pickNext = () => {
+const photoUrl = name => `/api/photos/${encodeURIComponent(name)}`;
+
+// A random photo, never the same one twice in a row. It is downloaded and
+// decoded before it is shown, so the fade doesn't stall the scrolling
+// widgets while a Pi 3 decodes the JPEG mid-animation.
+let picking = false;
+const pickNext = async () => {
   const names = data.value?.photos ?? [];
   if (!names.length) return (current.value = null);
+  if (picking) return;
   const others = names.length > 1 ? names.filter(n => n !== current.value) : names;
-  current.value = others[Math.floor(Math.random() * others.length)];
+  const next = others[Math.floor(Math.random() * others.length)];
+  picking = true;
+  try {
+    const img = new Image();
+    img.src = photoUrl(next);
+    await img.decode();
+  } catch {
+    // Show it anyway; the <img> reports its own failure
+  } finally {
+    picking = false;
+  }
+  current.value = next;
 };
 
 // First photo as soon as the list arrives, or if the shown one was removed
