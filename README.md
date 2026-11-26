@@ -6,7 +6,7 @@ A personal morning briefing screen — running on a Raspberry Pi 3 in kiosk mode
 
 - **Weather** — current conditions and an hourly forecast for York from 06:00 to 18:00 (tomorrow's after 18:00), from [Open-Meteo](https://open-meteo.com/) (no API key needed)
 - **Liverpool FC** — next fixture, last result, and Premier League table
-- **Stock Indices** — 6-month chart for S&P 500, NASDAQ, FTSE 100, and S&P 100
+- **Stock Indices** — 6-month chart for S&P 500, NASDAQ, FTSE 100, and Vanguard LifeStrategy 100% Equity (Acc)
 - **News Headlines** — two scrolling lines from RSS feeds: BBC News and York on top; Liverpool, Premier League, electrical and AI below
 - **Photos** — a photo frame showing a random photo from the shared Google Drive "Dashboard Photos" folder (small thumbnails, folder re-listed hourly) every minute, shown whole without cropping
 - **Tasks** — to-do items logged from a phone via the Google Tasks app

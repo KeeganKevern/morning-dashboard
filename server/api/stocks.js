@@ -5,7 +5,8 @@ const SYMBOLS = [
   { id: 'sp500', label: 'S&P 500', symbol: '^GSPC' },
   { id: 'nasdaq', label: 'NASDAQ', symbol: '^IXIC' },
   { id: 'ftse', label: 'FTSE 100', symbol: '^FTSE' },
-  { id: 'sp100', label: 'S&P 100', symbol: '^OEX' }
+  // Vanguard LifeStrategy 100% Equity A Acc (GBP, priced once a day)
+  { id: 'ls100', label: 'LifeStrategy 100', symbol: '0P0000TKZO.L' }
 ];
 
 const YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart';
