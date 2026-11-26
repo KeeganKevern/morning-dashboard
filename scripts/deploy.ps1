@@ -44,7 +44,7 @@ $dirty = if (git status --porcelain) { ' + uncommitted changes' } else { '' }
 [IO.File]::WriteAllText("$stage/app/.deployed", "$commit$dirty, $(Get-Date -Format 'yyyy-MM-dd HH:mm')`n")
 
 # Shell scripts must have Unix line endings
-foreach ($f in Get-ChildItem "$stage/pi" -File) {
+foreach ($f in Get-ChildItem "$stage/pi" -File | Where-Object Extension -ne '.bin') {
   $text = [IO.File]::ReadAllText($f.FullName) -replace "`r`n", "`n"
   [IO.File]::WriteAllText($f.FullName, $text)
 }

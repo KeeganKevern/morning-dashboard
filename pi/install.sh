@@ -46,6 +46,23 @@ sudo install -m 755 -o 1000 -g 1000 "$STAGE/pi/cec-listener.sh" "$ROOT/home/pi/c
 sudo install -d -o 1000 -g 1000 "$ROOT/home/pi/.config/autostart"
 sudo install -m 644 -o 1000 -g 1000 "$STAGE/pi/dashboard.desktop" "$ROOT/home/pi/.config/autostart/dashboard.desktop"
 
+# Always 1080p on HDMI. The daily restart happens with the TV on standby, when it
+# doesn't send its display details (EDID), and the Pi then falls back to 1024x768
+# for the whole day. So the kernel loads a saved copy of the TV's EDID (serial
+# blanked) instead of asking the TV, and video= picks 1080p from it (the TV's
+# preferred mode is 4K, beyond a Pi 3) with the output forced on (D).
+sudo install -D -m 644 "$STAGE/pi/tv-edid.bin" "$ROOT/usr/lib/firmware/edid/tv-edid.bin"
+CMDLINE=/boot/firmware/cmdline.txt
+WANT="drm.edid_firmware=HDMI-A-1:edid/tv-edid.bin video=HDMI-A-1:1920x1080@60D"
+if [ "$(grep -o 'drm.edid_firmware=[^ ]*\|video=HDMI-A-1:[^ ]*' "$CMDLINE" | tr '\n' ' ' | sed 's/ $//')" != "$WANT" ]; then
+  sudo mount -o remount,rw /boot/firmware
+  # One line: drop any older settings for these, then add the current ones
+  sudo sed -i -e 's/ *drm\.edid_firmware=[^ ]*//g' -e 's/ *video=HDMI-A-1:[^ ]*//g' -e "1s|\$| $WANT|" "$CMDLINE"
+  sync
+  sudo mount -o remount,ro /boot/firmware || true
+  echo "Boot settings now: $WANT (apply from the next restart)"
+fi
+
 # No automatic package checks: with the read-only overlay their downloads
 # (~130 MB of apt cache) fill RAM. Update by turning the overlay off first.
 NO_UPDATES="apt-daily.timer apt-daily-upgrade.timer packagekit.service"
