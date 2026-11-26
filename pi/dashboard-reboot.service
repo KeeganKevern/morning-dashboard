@@ -3,4 +3,9 @@ Description=Morning Dashboard daily restart
 
 [Service]
 Type=oneshot
+# Only after an hour up. The Pi has no clock battery and the read-only overlay
+# can't save the time, so each boot starts with a stale clock; when the network
+# sets the real time, systemd runs any timer the jump skipped past, which made
+# this restart straight after every boot, in a loop.
+ExecCondition=/bin/sh -c 'test "$(cut -d. -f1 /proc/uptime)" -gt 3600'
 ExecStart=/bin/systemctl --no-block reboot
