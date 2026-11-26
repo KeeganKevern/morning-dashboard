@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-zinc-900 border border-zinc-800 rounded-xl text-white w-full h-full p-2.5 flex flex-col min-h-0">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-50 w-full h-full p-2.5 flex flex-col min-h-0">
     <!-- Which change is showing: the active period is highlighted -->
     <div class="flex items-center justify-between mb-2">
-      <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">Markets</span>
+      <span class="title-trim text-xs font-semibold tracking-widest uppercase text-zinc-400">Markets</span>
       <div class="flex rounded-md border border-zinc-700 overflow-hidden text-[0.65rem] font-semibold uppercase tracking-wider">
         <span
           v-for="p in PERIODS"
@@ -72,7 +72,7 @@ const shortDate = iso => (iso ? new Date(iso).toLocaleDateString('en-GB', { day:
    Padding stays fixed: container units on the card itself would measure the screen. */
 .stock-card {
   container-type: size;
-  padding: 0.375rem 0.5rem;
+  padding: 0.375rem 0.25rem;
   gap: 0.125rem;
 }
 .stock-name {

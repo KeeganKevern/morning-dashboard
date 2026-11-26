@@ -33,8 +33,16 @@ sudo mv "$ROOT/$APP.new" "$ROOT/$APP"
 
 # System files
 sudo install -m 644 "$STAGE"/pi/dashboard.service "$STAGE"/pi/timetree-sync.service \
-  "$STAGE"/pi/timetree-sync.timer "$ROOT/etc/systemd/system/"
+  "$STAGE"/pi/timetree-sync.timer "$STAGE"/pi/dashboard-screen.service "$STAGE"/pi/dashboard-screen.timer \
+  "$STAGE"/pi/dashboard-reboot.service "$STAGE"/pi/dashboard-cec-listener.service "$ROOT/etc/systemd/system/"
+# The daily restart time comes from DASHBOARD_REBOOT_AT in .env (default 04:45)
+REBOOT_AT=$(sed -n 's/^DASHBOARD_REBOOT_AT=//p' "$STAGE/app/.env" | tr -d '"'"'"' ')
+[[ "$REBOOT_AT" =~ ^[0-2][0-9]:[0-5][0-9]$ ]] || REBOOT_AT=04:45
+sed "s/^OnCalendar=.*/OnCalendar=*-*-* $REBOOT_AT:00/" "$STAGE/pi/dashboard-reboot.timer" \
+  | sudo tee "$ROOT/etc/systemd/system/dashboard-reboot.timer" >/dev/null
 sudo install -m 755 -o 1000 -g 1000 "$STAGE/pi/start-browser.sh" "$ROOT/home/pi/start-browser.sh"
+sudo install -m 755 -o 1000 -g 1000 "$STAGE/pi/screen-schedule.sh" "$ROOT/home/pi/screen-schedule.sh"
+sudo install -m 755 -o 1000 -g 1000 "$STAGE/pi/cec-listener.sh" "$ROOT/home/pi/cec-listener.sh"
 sudo install -d -o 1000 -g 1000 "$ROOT/home/pi/.config/autostart"
 sudo install -m 644 -o 1000 -g 1000 "$STAGE/pi/dashboard.desktop" "$ROOT/home/pi/.config/autostart/dashboard.desktop"
 
@@ -43,11 +51,11 @@ sudo install -m 644 -o 1000 -g 1000 "$STAGE/pi/dashboard.desktop" "$ROOT/home/pi
 NO_UPDATES="apt-daily.timer apt-daily-upgrade.timer packagekit.service"
 
 if [ -n "$ROOT" ]; then
-  sudo systemctl --root="$ROOT" enable dashboard.service timetree-sync.timer
+  sudo systemctl --root="$ROOT" enable dashboard.service timetree-sync.timer dashboard-screen.timer dashboard-reboot.timer dashboard-cec-listener.service
   sudo systemctl --root="$ROOT" mask $NO_UPDATES
 else
   sudo systemctl daemon-reload
-  sudo systemctl enable dashboard.service timetree-sync.timer
+  sudo systemctl enable dashboard.service timetree-sync.timer dashboard-screen.timer dashboard-reboot.timer dashboard-cec-listener.service
   sudo systemctl mask $NO_UPDATES
 fi
 

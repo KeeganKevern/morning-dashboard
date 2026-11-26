@@ -1,0 +1,12 @@
+[Unit]
+Description=Morning Dashboard: show it when picked on the TV (HDMI-CEC)
+After=graphical.target
+
+[Service]
+# Root: watching HDMI-CEC needs it; the screen changes run as pi
+ExecStart=/bin/bash /home/pi/cec-listener.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target

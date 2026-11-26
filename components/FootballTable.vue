@@ -8,7 +8,7 @@
             v-for="column in tableColumns"
             :key="column.key"
             :class="[
-              'px-2 py-1 font-semibold text-[0.65rem] tracking-widest uppercase text-zinc-400',
+              'title-trim px-2 py-1 font-semibold text-[0.65rem] tracking-widest uppercase text-zinc-400',
               column.align === 'center' ? 'text-center' : 'text-left',
               column.headerClass
             ]"
@@ -23,7 +23,7 @@
           :key="team.position"
           :class="[
             'border-b border-zinc-800/50',
-            team.team === 'Liverpool FC' ? 'bg-red-800' : ''
+            team.team === 'Liverpool FC' ? 'row-highlight' : ''
           ]"
         >
           <td
@@ -47,13 +47,13 @@
 <script setup>
 const tableColumns = [
   { key: 'position', label: 'Pos', align: 'left', headerClass: 'w-10', cellClass: 'text-zinc-400' },
-  { key: 'team', label: 'Team', align: 'left', cellClass: 'font-medium truncate text-zinc-100' },
+  { key: 'displayName', label: 'Team', align: 'left', cellClass: 'font-medium truncate text-zinc-100' },
   { key: 'played', label: 'P', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
   { key: 'won', label: 'W', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
   { key: 'drawn', label: 'D', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
   { key: 'lost', label: 'L', align: 'center', headerClass: 'w-9', cellClass: 'text-zinc-400' },
   { key: 'goalDifference', label: 'GD', align: 'center', headerClass: 'w-10', cellClass: 'text-zinc-400' },
-  { key: 'points', label: 'Pts', align: 'center', headerClass: 'w-11', cellClass: 'font-bold text-white border-l border-zinc-800' }
+  { key: 'points', label: 'Pts', align: 'center', headerClass: 'w-11', cellClass: 'font-bold text-zinc-50 border-l border-zinc-800' }
 ];
 
 const props = defineProps({

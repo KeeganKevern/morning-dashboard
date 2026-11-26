@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-zinc-950 text-white h-screen flex flex-col overflow-hidden">
+  <div class="bg-zinc-950 text-zinc-50 h-screen flex flex-col overflow-hidden">
     <header class="relative flex items-center justify-center px-4 py-2 border-b border-zinc-800">
       <!-- One status for the whole screen: the latest refresh, and any source failing -->
       <span class="absolute left-4 text-[0.65rem] text-zinc-500">
@@ -10,7 +10,7 @@
     </header>
 
     <!-- Act-first: what to act on gets the centre; glanceable things sit either side -->
-    <section class="flex-1 grid grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,1fr)] gap-3 p-3 pb-0 min-h-0">
+    <section class="flex-1 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_minmax(0,0.9fr)] gap-3 p-3 pb-0 min-h-0">
       <!-- Left: the photo filling the space above the weather -->
       <div class="flex flex-col gap-3 min-h-0">
         <div class="flex-1 min-h-0"><Photos /></div>

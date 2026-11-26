@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 w-full h-full text-white flex flex-col justify-center">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 w-full h-full text-zinc-50 flex flex-col justify-center">
     <div v-if="loading && !weather" class="text-zinc-500 text-sm">Loading weather...</div>
     <div v-else-if="error && !weather" class="text-red-400 text-sm">{{ error }}</div>
     <div v-else-if="weather" class="flex flex-col gap-3 min-h-0">
 
-      <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">{{ weather.location }}</span>
+      <span class="title-trim text-xs font-semibold tracking-widest uppercase text-zinc-400">{{ weather.location }}</span>
 
       <div class="flex items-center gap-4">
         <span class="text-4xl leading-none">{{ weather.current.icon }}</span>
@@ -15,12 +15,14 @@
           </div>
           <span class="text-xs text-zinc-400">Feels like {{ Math.round(weather.current.feels_like) }}°</span>
         </div>
-        <div class="ml-auto grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs text-zinc-400">
-          <span>💨 {{ Math.round(weather.current.wind_mph) }} mph</span>
-          <span>💧 {{ weather.current.humidity }}%</span>
-          <span>🌅 {{ weather.current.sunrise }}</span>
-          <span>🌇 {{ weather.current.sunset }}</span>
-        </div>
+      </div>
+
+      <!-- One row under the conditions, so the figures have room to be read -->
+      <div class="flex justify-between gap-2 text-sm text-zinc-300 whitespace-nowrap">
+        <span>💨 {{ Math.round(weather.current.wind_mph) }} mph</span>
+        <span>💧 {{ weather.current.humidity }}%</span>
+        <span>🌅 {{ weather.current.sunrise }}</span>
+        <span>🌇 {{ weather.current.sunset }}</span>
       </div>
 
       <div class="flex flex-col gap-1 min-h-0">
