@@ -1,2 +1,4 @@
 # Files that run on the Pi keep Unix line endings
 pi/* text eol=lf
+# except the TV's saved display details, which are binary
+pi/*.bin binary
