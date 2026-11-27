@@ -132,10 +132,16 @@ export default async () => {
   const tomorrow = new Date(Date.parse(`${today}T12:00:00Z`) + DAY).toISOString().slice(0, 10);
 
   const all = parseEvents(ics);
-  // All-day events first, then by start time
+  // All-day events first, then by start time. endTime is the clock time the
+  // event ends (null for all-day events and ones with no end).
   const eventsOn = day => all
     .filter(ev => occursOn(ev, day))
-    .map(ev => ({ title: ev.title || '(no title)', allDay: ev.start.allDay, time: ev.start.allDay ? null : hm(ev.start.at) }))
+    .map(ev => ({
+      title: ev.title || '(no title)',
+      allDay: ev.start.allDay,
+      time: ev.start.allDay ? null : hm(ev.start.at),
+      endTime: !ev.start.allDay && ev.end && !ev.end.allDay ? hm(ev.end.at) : null
+    }))
     .sort((a, b) => (a.allDay === b.allDay ? (a.time || '').localeCompare(b.time || '') : a.allDay ? -1 : 1));
 
   const body = { events: eventsOn(today), tomorrow: eventsOn(tomorrow) };
