@@ -1,7 +1,12 @@
-// Google Tasks for the Today panel: tasks due today or overdue on any list,
-// then undated tasks from the default list.
+// Google Tasks for the Today panel: every open task on every list, in two groups.
+//   - urgent: late, or dated within the next URGENT_DAYS days
+//   - rest:   dated later (soonest first), then undated ones (background tasks)
+// The task's Date in the Tasks app is the only date Google shares with other
+// apps (its Deadline isn't), so the Date is treated as the day it's needed by.
 
 const TASKS_BASE = 'https://tasks.googleapis.com/tasks/v1';
+const URGENT_DAYS = 3;
+const DAY = 24 * 60 * 60 * 1000;
 
 const openTasks = async listId => {
   const res = await googleGet(`${TASKS_BASE}/lists/${encodeURIComponent(listId)}/tasks`, {
@@ -23,21 +28,27 @@ export default async () => {
   }
 
   const today = londonToday();
-  const defaultId = lists[0]?.id; // the first list is the default one
+  const todayAt = Date.parse(`${today}T00:00:00Z`);
   const perList = await Promise.all(lists.map(async l => ({ list: l, tasks: await openTasks(l.id) })));
 
-  const due = [];
+  const urgent = [];
+  const dated = [];
   const undated = [];
   for (const { list, tasks } of perList) {
     for (const t of tasks) {
-      // Tasks stores due dates as midnight UTC, so the date part is the day
-      const dueDay = t.due?.slice(0, 10);
-      const item = { id: t.id, title: t.title.trim(), list: list.title, due: dueDay ?? null, overdue: !!dueDay && dueDay < today };
-      if (dueDay && dueDay <= today) due.push(item);
-      else if (!dueDay && list.id === defaultId) undated.push(item);
+      // Tasks stores dates as midnight UTC, so the date part is the day
+      const due = t.due?.slice(0, 10) ?? null;
+      // Days until the date: negative when late, 0 today
+      const daysLeft = due ? Math.round((Date.parse(`${due}T00:00:00Z`) - todayAt) / DAY) : null;
+      const item = { id: t.id, title: t.title.trim(), list: list.title, due, daysLeft, overdue: daysLeft !== null && daysLeft < 0 };
+      if (daysLeft === null) undated.push(item);
+      else if (daysLeft <= URGENT_DAYS) urgent.push(item);
+      else dated.push(item);
     }
   }
-  due.sort((a, b) => a.due.localeCompare(b.due));
+  const byDate = (a, b) => a.due.localeCompare(b.due);
+  urgent.sort(byDate);
+  dated.sort(byDate);
 
-  return { tasks: [...due, ...undated], updated: new Date().toISOString() };
+  return { urgent, rest: [...dated, ...undated], urgentDays: URGENT_DAYS, updated: new Date().toISOString() };
 };
