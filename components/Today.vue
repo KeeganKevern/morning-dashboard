@@ -19,9 +19,10 @@
       </div>
     </div>
 
-    <div class="flex-1 min-h-0 grid grid-rows-[minmax(0,1fr)_auto_auto] gap-y-3">
+    <!-- One column pinned to the panel width, so a long title is cut off rather than widening it -->
+    <div class="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_auto] gap-y-3">
       <!-- Calendar and tasks lead the panel -->
-      <div class="min-h-0 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-5">
+      <div class="min-h-0 grid grid-cols-[minmax(0,3fr)_minmax(0,7fr)] gap-x-5">
         <!-- TimeTree -->
         <section class="min-h-0 flex flex-col">
           <h3 class="section-title section-title-main">Calendar</h3>
@@ -33,10 +34,11 @@
               <div v-for="day in calendarDays" :key="day.label" class="mb-3 last:mb-0">
                 <p class="text-xs uppercase tracking-wider mb-1.5" :class="day.colour">{{ day.label }}</p>
                 <p v-if="!day.events.length" class="note text-zinc-600">Nothing on {{ day.label.toLowerCase() }}</p>
-                <ul class="space-y-1.5">
-                  <li v-for="(e, i) in day.events" :key="i" class="flex gap-3 text-lg leading-tight">
-                    <span class="shrink-0 w-[4.5rem] whitespace-nowrap text-zinc-400 tabular-nums">{{ e.allDay ? 'All day' : e.time }}</span>
-                    <span class="min-w-0 break-words" :class="day.text">{{ e.title }}</span>
+                <!-- Start and end time above the title, so a narrow column fits both -->
+                <ul class="space-y-2">
+                  <li v-for="(e, i) in day.events" :key="i" class="leading-tight">
+                    <span class="block text-sm whitespace-nowrap text-zinc-400 tabular-nums">{{ e.allDay ? 'All day' : e.endTime ? `${e.time}–${e.endTime}` : e.time }}</span>
+                    <span class="block text-lg break-words" :class="day.text">{{ e.title }}</span>
                   </li>
                 </ul>
               </div>
@@ -44,21 +46,17 @@
           </template>
         </section>
 
-        <!-- Google Tasks: urgent ones as large tiles, everything else listed beside them -->
+        <!-- Google Tasks: urgent ones as large tiles, with everything else underneath -->
         <section class="min-h-0 flex flex-col">
           <h3 class="section-title section-title-main">Tasks</h3>
           <p v-if="!tasks.data.value" class="note" :class="tone(tasks)">{{ status(tasks, 'Loading tasks...') }}</p>
-          <!-- With nothing urgent, All tasks takes the room the tiles would have used -->
-          <div
-            v-else
-            class="flex-1 min-h-0 grid gap-x-3"
-            :class="tasks.data.value.urgent.length ? 'grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : 'grid-cols-[auto_minmax(0,1fr)]'"
-          >
-            <div class="min-h-0 flex flex-col">
+          <div v-else class="flex-1 min-h-0 flex flex-col">
+            <!-- Up to half the height; scrolls if there are more urgent tasks than fit -->
+            <div class="min-h-0 max-h-[50%] flex flex-col">
               <p class="group-label text-red-400">Urgent</p>
               <p v-if="!tasks.data.value.urgent.length" class="note text-zinc-500">Nothing urgent</p>
-              <AutoScroll>
-                <ul class="space-y-1.5">
+              <AutoScroll v-else>
+                <ul class="grid grid-cols-2 gap-1.5">
                   <li v-for="t in tasks.data.value.urgent" :key="t.id" class="rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 leading-tight">
                     <span class="block text-lg text-zinc-50 break-words">{{ t.title }}</span>
                     <span class="block text-xs mt-0.5" :class="t.overdue ? 'text-red-400' : 'text-amber-400'">{{ urgentWhen(t) }}</span>
@@ -66,13 +64,14 @@
                 </ul>
               </AutoScroll>
             </div>
-            <div class="min-h-0 flex flex-col border-l border-zinc-800 pl-3">
+            <div class="flex-1 min-h-0 flex flex-col border-t border-zinc-800 mt-2.5 pt-2">
               <p class="group-label text-zinc-400">All tasks</p>
               <p v-if="!tasks.data.value.rest.length" class="note text-zinc-500">Nothing else</p>
               <AutoScroll>
-                <ul class="space-y-1.5">
-                  <li v-for="t in tasks.data.value.rest" :key="t.id" class="leading-tight">
-                    <span class="block text-base break-words" :class="t.due ? 'text-zinc-100' : 'text-zinc-400'">{{ t.title }}</span>
+                <!-- Two columns, filled left to right (CSS columns spill sideways inside AutoScroll) -->
+                <ul class="grid grid-cols-2 gap-x-6 gap-y-1.5">
+                  <li v-for="t in tasks.data.value.rest" :key="t.id" class="min-w-0 leading-tight">
+                    <span class="block text-lg break-words" :class="t.due ? 'text-zinc-100' : 'text-zinc-400'">{{ t.title }}</span>
                     <span v-if="t.due" class="block text-xs text-zinc-500">by {{ dayMonth(t.due) }}</span>
                   </li>
                 </ul>
@@ -82,7 +81,7 @@
         </section>
       </div>
 
-      <!-- Applications: counts, then this fortnight's applications sliding four at a time -->
+      <!-- Applications: counts, then this fortnight's applications sliding two at a time -->
       <section class="border-t border-zinc-800 pt-2.5">
         <p v-if="!jobs.data.value" class="note" :class="tone(jobs)">{{ status(jobs, 'Loading applications...') }}</p>
         <div v-else class="flex items-center gap-3">
@@ -99,7 +98,7 @@
           <div class="flex-1 min-w-0 self-stretch border-l border-zinc-800 pl-3 overflow-hidden flex flex-col justify-center">
             <p v-if="!jobs.data.value.applied.length" class="note text-zinc-500">No applications in the last {{ jobs.data.value.recentDays }} days</p>
             <Transition v-else name="table-slide" mode="out-in">
-              <ul :key="appliedPage" class="grid grid-cols-2 gap-x-4 gap-y-1">
+              <ul :key="appliedPage" class="flex flex-col gap-1">
                 <li v-for="(j, i) in appliedRows" :key="i" class="flex gap-2 text-sm leading-tight min-w-0">
                   <span class="truncate text-zinc-100">{{ j.title }}<span class="text-zinc-500"> · {{ j.employer }}</span></span>
                   <span class="ml-auto shrink-0 text-xs tabular-nums text-emerald-400">{{ j.days }}d</span>
@@ -173,7 +172,7 @@ const usePages = (list, size, ms) => {
 };
 
 const appliedList = computed(() => jobs.data.value?.applied ?? []);
-const { page: appliedPage, pages: appliedPages, rows: appliedRows } = usePages(appliedList, 4, 20 * 1000);
+const { page: appliedPage, pages: appliedPages, rows: appliedRows } = usePages(appliedList, 2, 12 * 1000);
 
 const projectList = computed(() => projects.data.value?.projects ?? []);
 const { page: stepPage, rows: stepRows } = usePages(projectList, 2, 15 * 1000);
