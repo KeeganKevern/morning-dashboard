@@ -3,10 +3,14 @@
 //   - To review: rows with Status "To review"
 //   - To chase:  rows Keegan has set to "To chase" (nothing is chased by default)
 //   - Applied:   rows with Status "Applied" that were applied for in the last 14 days
+// plus appliedTotal: every application ever sent (Applied, To chase, Rejected,
+// Interview or Offer), however long ago.
 
 const SHEETS_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 const TABS = ['Office', 'Careers', 'Other', 'Remote', 'Engineering'];
 const RECENT_DAYS = 14;
+// Statuses that mean the application was sent
+const SENT = /^(applied|to chase|rejected|interview|offer)/i;
 const DAY = 24 * 60 * 60 * 1000;
 
 const MONTHS = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
@@ -60,6 +64,7 @@ export default async () => {
   const review = [];
   const chase = [];
   const applied = [];
+  let appliedTotal = 0;
 
   res.valueRanges.forEach((range, i) => {
     const [header, ...rows] = range.values || [];
@@ -70,6 +75,7 @@ export default async () => {
     for (const row of rows) {
       const status = (row[cStatus] || '').trim();
       const item = { title: row[cTitle] || '', employer: row[cEmployer] || '', tab: TABS[i] };
+      if (SENT.test(status)) appliedTotal++;
       if (status === 'To review') {
         review.push({ ...item, days: daysSince(lastActivity(row[cNotes], row[cFound])) });
       } else if (status === 'To chase') {
@@ -87,5 +93,5 @@ export default async () => {
   chase.sort(oldestFirst);
   applied.sort((a, b) => a.days - b.days);
 
-  return { review, chase, applied, recentDays: RECENT_DAYS, updated: new Date().toISOString() };
+  return { review, chase, applied, appliedTotal, recentDays: RECENT_DAYS, updated: new Date().toISOString() };
 };
