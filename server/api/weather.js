@@ -7,6 +7,17 @@ const LON = -1.0908;
 const TZ = 'Europe/London';
 const FIRST_HOUR = 6;
 const LAST_HOUR = 18;
+// The blocks the day is split into: name, first hour, last hour
+const PERIODS = [['Morning', 6, 9], ['Midday', 10, 13], ['Afternoon', 14, 18]];
+// A chance of rain at or above this counts as "rain likely" in the summary
+const RAIN_LIKELY = 50;
+
+// One line for the top of the panel: when the rain is likely to start, if at all
+const summarise = (firstRain, nextHour, tomorrow) => {
+  if (!firstRain) return tomorrow ? 'Dry all day' : 'Dry for the rest of the day';
+  if (!tomorrow && firstRain === nextHour) return `Rain likely now, ${firstRain.pop}%`;
+  return tomorrow ? `Rain likely from ${firstRain.time}` : `Dry until ${firstRain.time}, then rain likely`;
+};
 
 // WMO weather codes -> short description + emoji (day, night)
 const CODES = {
@@ -82,24 +93,52 @@ export default async () => {
   const forecastDate = data.daily.time[dayIndex];
 
   const h = data.hourly;
-  const hourly = h.time
-    .map((time, i) => ({ time, i }))
-    .filter(({ time }) => {
-      const hour = Number(time.slice(11, 13));
-      return time.startsWith(forecastDate) && hour >= FIRST_HOUR && hour <= LAST_HOUR;
-    })
-    .map(({ time, i }) => ({
+  const hours = h.time
+    .map((time, i) => ({ time, i, hour: Number(time.slice(11, 13)) }))
+    .filter(({ time, hour }) => time.startsWith(forecastDate) && hour >= FIRST_HOUR && hour <= LAST_HOUR)
+    .map(({ time, i, hour }) => ({
+      hour,
+      code: h.weather_code[i],
+      isDay: h.is_day[i],
       time: time.slice(11, 16),
       temp: h.temperature_2m[i],
       pop: h.precipitation_probability[i] ?? 0,
-      ...describe(h.weather_code[i], h.is_day[i]),
-      past: !showTomorrow && Number(time.slice(11, 13)) < now.hour
+      past: !showTomorrow && hour < now.hour
     }));
+  const hourly = hours.map(({ hour, code, isDay, ...rest }) => ({ ...rest, ...describe(code, isDay) }));
+
+  // The day in three blocks. Each shows its worst weather (the highest WMO code
+  // is roughly the most severe), its temperature range and its highest chance of rain.
+  const periods = PERIODS.map(([name, from, to]) => {
+    const hs = hours.filter(x => x.hour >= from && x.hour <= to);
+    if (!hs.length) return null;
+    const worst = hs.reduce((a, b) => (b.code > a.code ? b : a));
+    const temps = hs.map(x => Math.round(x.temp));
+    return {
+      name,
+      from: `${String(from).padStart(2, '0')}`,
+      to: `${String(to).padStart(2, '0')}`,
+      ...describe(worst.code, worst.isDay),
+      min: Math.min(...temps),
+      max: Math.max(...temps),
+      pop: Math.max(...hs.map(x => x.pop)),
+      past: hs.every(x => x.past)
+    };
+  }).filter(Boolean);
+
+  const temps = hours.map(x => Math.round(x.temp));
+  const ahead = hours.filter(x => !x.past);
+  const firstRain = ahead.find(x => x.pop >= RAIN_LIKELY);
 
   const c = data.current;
   return {
     location: 'York',
     day: showTomorrow ? 'Tomorrow' : 'Today',
+    high: temps.length ? Math.max(...temps) : null,
+    low: temps.length ? Math.min(...temps) : null,
+    summary: summarise(firstRain, ahead[0], showTomorrow),
+    rainLikely: !!firstRain,
+    periods,
     current: {
       temp: c.temperature_2m,
       feels_like: c.apparent_temperature,

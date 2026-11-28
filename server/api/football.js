@@ -74,8 +74,6 @@ const fetchFootballData = async () => {
       position: team.position,
       team: team.team.name,
       shortName: team.team.tla,
-      // "Brighton Hove", "Tottenham": fits the table on the TV without cutting off
-      displayName: team.team.shortName || team.team.name,
       played: team.playedGames,
       won: team.won,
       drawn: team.draw,

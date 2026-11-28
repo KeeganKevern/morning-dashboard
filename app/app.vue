@@ -10,7 +10,7 @@
     </header>
 
     <!-- Act-first: what to act on gets the centre; glanceable things sit either side -->
-    <section class="flex-1 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_minmax(0,0.9fr)] gap-3 p-3 pb-0 min-h-0">
+    <section class="flex-1 grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,0.7fr)] gap-3 p-3 pb-0 min-h-0">
       <!-- Left: the photo filling the space above the weather -->
       <div class="flex flex-col gap-3 min-h-0">
         <div class="flex-1 min-h-0"><Photos /></div>
